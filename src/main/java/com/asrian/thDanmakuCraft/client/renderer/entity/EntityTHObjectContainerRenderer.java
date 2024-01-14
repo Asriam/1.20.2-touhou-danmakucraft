@@ -38,31 +38,35 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
     public void render(EntityTHObjectContainer entity, float rotationX, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedOverlay){
         super.render(entity, rotationX, partialTicks, poseStack, bufferSource, combinedOverlay);
         renderContainerBound(entity, poseStack, bufferSource.getBuffer(RenderType.lines()));
+
         poseStack.popPose();
         poseStack.pushPose();
+
         Vec3 cameraPosition = this.dispatcher.camera.getPosition();
-        double d2 = cameraPosition.x;
-        double d3 = cameraPosition.y;
-        double d0 = cameraPosition.z;
-        poseStack.translate(-d2, -d3, -d0);
+        double camX = cameraPosition.x;
+        double camY = cameraPosition.y;
+        double camZ = cameraPosition.z;
 
         for(THObject object:entity.getObjectManager().getTHObjects()){
-            if (object != null && (object instanceof THCurvedLaser || this.shouldRenderTHObject(object, this.frustum, cameraPosition.x, cameraPosition.y, cameraPosition.z))) {
+            if (object != null && (object instanceof THCurvedLaser || this.shouldRenderTHObject(object, this.frustum, camX, camY, camZ))) {
                 poseStack.pushPose();
-                object.onRender(this, partialTicks, poseStack, bufferSource, combinedOverlay);
+                Vec3 offsetPos = object.getOffsetPosition(partialTicks);
+                poseStack.translate(offsetPos.x()-camX, offsetPos.y()-camY, offsetPos.z()-camZ);
+                object.onRender(this, offsetPos, partialTicks, poseStack, bufferSource, combinedOverlay);
                 if (this.dispatcher.shouldRenderHitBoxes() && object.colli) {
-                    Vec3 offsetPos = object.getOffsetPosition(partialTicks);
-                    if(object instanceof THCurvedLaser){
-                        renderTHCurvedLaserHitBoxes((THCurvedLaser) object, poseStack, bufferSource.getBuffer(RenderType.lines()),partialTicks,this.frustum,cameraPosition);
-                        //renderTHObjectsHitBox(object, poseStack, bufferSource.getBuffer(RenderType.lines()));
+                    if(object instanceof THCurvedLaser laser){
+                        renderTHCurvedLaserHitBoxes(laser, offsetPos, poseStack, bufferSource.getBuffer(RenderType.lines()),partialTicks,this.frustum,cameraPosition);
                     }else {
-                        poseStack.translate(offsetPos.x(), offsetPos.y(), offsetPos.z());
                         renderTHObjectsHitBox(object, poseStack, bufferSource.getBuffer(RenderType.lines()));
                     }
                 }
                 poseStack.popPose();
             }
         }
+        poseStack.popPose();
+        poseStack.pushPose();
+        Vec3 entityPos = entity.getPosition(partialTicks);
+        poseStack.translate(entityPos.x-camX, entityPos.y-camY, entityPos.z-camZ);
     }
 
     private static void renderTHObjectsHitBox(THObject object, PoseStack poseStack, VertexConsumer vertexConsumer) {
@@ -77,7 +81,7 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
         vertexConsumer.vertex(matrix4f, (float)(vec31.x * 2.0D), (float)((vec31.y * 2.0D)), (float)(vec31.z * 2.0D)).color(0, 0, 255, 255).normal(matrix3f, (float)vec31.x, (float)vec31.y, (float)vec31.z).endVertex();
     }
 
-    private static void renderTHCurvedLaserHitBoxes(THCurvedLaser laser, PoseStack poseStack, VertexConsumer vertexConsumer, float partialTicks, Frustum frustum, Vec3 cameraPosition){
+    private static void renderTHCurvedLaserHitBoxes(THCurvedLaser laser, Vec3 laserPos,PoseStack poseStack, VertexConsumer vertexConsumer, float partialTicks, Frustum frustum, Vec3 cameraPosition){
         List<THCurvedLaser.LaserNode> nodes = laser.nodeManager.getNodes();
         for(THCurvedLaser.LaserNode node: nodes){
             Vec3 pos = node.getPosition();
@@ -89,7 +93,7 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
             if (frustum.isVisible(aabb)) {
                 poseStack.pushPose();
                 AABB aabb2 = node.getBoundingBox().move(-pos.x(), -pos.y(), -pos.z());
-                Vec3 offsetPos = node.getOffsetPosition(partialTicks);
+                Vec3 offsetPos = laserPos.vectorTo(node.getOffsetPosition(partialTicks));
                 poseStack.translate(offsetPos.x(), offsetPos.y(), offsetPos.z());
                 LevelRenderer.renderLineBox(poseStack, vertexConsumer, aabb2, 0.0F, 1.0F, 1.0F, 1.0F);
                 poseStack.popPose();

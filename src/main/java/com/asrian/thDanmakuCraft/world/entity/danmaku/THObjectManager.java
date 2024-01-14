@@ -100,8 +100,10 @@ public class THObjectManager{
         CompoundTag tag = new CompoundTag();
         int index = 0;
         for (THObject object:objects) {
-            tag.put("object_"+index,object.save(new CompoundTag()));
-            index++;
+            if (object.shouldSave) {
+                tag.put("object_" + index, object.save(new CompoundTag()));
+                index++;
+            }
         }
         return tag;
     }

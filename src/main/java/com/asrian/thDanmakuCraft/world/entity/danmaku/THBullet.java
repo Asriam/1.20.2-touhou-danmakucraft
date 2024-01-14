@@ -81,13 +81,15 @@ public class THBullet extends THObject {
 
     @Override
     @OnlyIn(value = Dist.CLIENT)
-    public void onRender(EntityTHObjectContainerRenderer renderer, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedOverlay) {
+    public void onRender(EntityTHObjectContainerRenderer renderer, Vec3 bulletPos, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedOverlay) {
         if(this.color.a <= 0){
             return;
         }
         poseStack.pushPose();
+        /**
         Vec3 offsetPos = this.getOffsetPosition(partialTicks);
         poseStack.translate(offsetPos.x(), offsetPos.y(), offsetPos.z());
+         */
 
         this.style.render(renderer,this,partialTicks,poseStack,bufferSource,combinedOverlay);
         poseStack.popPose();

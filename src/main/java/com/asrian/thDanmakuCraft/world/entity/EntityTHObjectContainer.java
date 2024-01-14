@@ -4,6 +4,7 @@ import com.asrian.thDanmakuCraft.init.EntityInit;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.ScriptManager;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectManager;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THTask;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -20,8 +21,8 @@ import java.util.List;
 
 public class EntityTHObjectContainer extends Entity implements IEntityAdditionalSpawnData {
 
-    protected @Nullable
-    Entity user;
+    protected @Nullable Entity user;
+    protected @Nullable Entity target;
     public boolean noCulling;
     private final ScriptManager scriptManager;
     private final THObjectManager objectManager;
@@ -30,6 +31,8 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     public AABB bound = new AABB(-60.0D,-60.0D,-60.0D,60.0D,60.0D,60.0D);
     public boolean positionBinding = false;
     private int maxObjectAmount = 1000;
+    private boolean autoRemove = false;
+    public final THTask task = new THTask();
 
     public EntityTHObjectContainer(EntityType<? extends EntityTHObjectContainer> type, Level level) {
         super(type, level);
@@ -72,6 +75,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     @Override
     public void tick() {
         super.tick();
+        this.task.tick();
         if(this.positionBinding && this.user != null){
             this.setPos(this.user.position());
         }
@@ -150,6 +154,13 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
 
         this.updateObjects();
         this.timer++;
+
+        /*
+        if(this.autoRemove){
+            if(this.objectManager.isEmpty()){
+                this.remove(RemovalReason.DISCARDED);
+            }
+        }*/
     }
 
     public void updateObjects(){
@@ -207,9 +218,19 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         return this.user;
     }
 
+    public void setTarget(@Nullable Entity target) {
+        this.target = target;
+    }
+
+    @Nullable
+    public Entity getTarget() {
+        return target;
+    }
+
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeVarInt(this.user != null ? this.user.getId() : 0);
+        buffer.writeVarInt(this.target != null ? this.target.getId() : 0);
         buffer.writeInt(this.maxObjectAmount);
         buffer.writeInt(this.timer);
         buffer.writeBoolean(this.positionBinding);
@@ -219,13 +240,15 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
 
     @Override
     public void readSpawnData(FriendlyByteBuf additionalData) {
-        Entity entity = this.level().getEntity(additionalData.readVarInt());
+        Entity user = this.level().getEntity(additionalData.readVarInt());
+        Entity target = this.level().getEntity(additionalData.readVarInt());
         this.maxObjectAmount = additionalData.readInt();
         this.timer = additionalData.readInt();
         this.positionBinding = additionalData.readBoolean();
         this.objectManager.readData(additionalData);
         this.scriptManager.readData(additionalData);
-        this.setUser(entity);
+        this.setUser(user);
+        this.setTarget(target);
     }
 
     @Override

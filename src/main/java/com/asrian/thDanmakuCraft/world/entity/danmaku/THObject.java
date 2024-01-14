@@ -51,8 +51,8 @@ public class THObject{
     protected int timer = 0;
     protected int lifetime = 120;
     private int deathLastsTime = 10;
+    public boolean shouldSave = true;
     public boolean deathAnimation = true;
-    public boolean onGround;
     public boolean inWater;
     public boolean colli = true;
     public boolean navi = false;
@@ -87,14 +87,20 @@ public class THObject{
         return this;
     }
 
-    public THObject shoot(float speed, Vec3 rotation) {
-        this.setVelocity(speed,rotation,true);
+    public THObject shoot(float speed, Vec3 vectorRotation) {
+        this.setVelocity(speed,vectorRotation,true);
         this.spawn();
         return this;
     }
 
     public THObject shoot(Vec3 velocity){
         this.setVelocity(velocity,true);
+        this.spawn();
+        return this;
+    }
+
+    public THObject shoot(float speed, Vec2 rotation, boolean isDeg){
+        this.setVelocity(speed, rotation, isDeg,true);
         this.spawn();
         return this;
     }
@@ -551,14 +557,16 @@ public class THObject{
     }
 
     @OnlyIn(value = Dist.CLIENT)
-    public void onRender(EntityTHObjectContainerRenderer renderer, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedOverlay) {
+    public void onRender(EntityTHObjectContainerRenderer renderer, Vec3 objectPos,float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedOverlay) {
         if(this.color.a <= 0){
             return;
         }
 
         poseStack.pushPose();
+        /**
         Vec3 offsetPos = this.getOffsetPosition(partialTicks);
         poseStack.translate(offsetPos.x(), offsetPos.y(), offsetPos.z());
+         */
         if(this.faceToCamera) {
             poseStack.mulPose(renderer.dispatcher.cameraOrientation());
             poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
@@ -637,9 +645,17 @@ public class THObject{
         public int b;
         public int a;
 
-        public static final Color WHITE = Color(255,255,255,255);
-        public static final Color BLACK = Color(0,0,0,255);
-        public static final Color VOID = Color(0,0,0,0);
+        public static final Color WHITE(){
+            return new Color(255,255,255,255);
+        }
+
+        public static final Color BLACK(){
+            return new Color(0,0,0,255);
+        }
+
+        public static final Color VOID(){
+            return new Color(0,0,0,0);
+        }
 
         Color(int r, int g, int b, int a){
             this.r = r;
@@ -653,19 +669,19 @@ public class THObject{
             int g = Mth.clamp(this.g,0,255);
             int b = Mth.clamp(this.b,0,255);
             int a = Mth.clamp(this.a,0,255);
-            return Color(r,g,b,a);
+            return new Color(r,g,b,a);
         }
 
         public Color plus(int r, int g, int b, int a){
-            return Color(this.r+r,this.g+g,this.b+b,this.a+a);
+            return new Color(this.r+r,this.g+g,this.b+b,this.a+a);
         }
 
         public Color minus(int r, int g, int b, int a){
-            return Color(this.r-r,this.g-g,this.b-b,this.a-a);
+            return new Color(this.r-r,this.g-g,this.b-b,this.a-a);
         }
 
         public Color multiply(float r, float g, float b, float a){
-            return Color((int) (this.r*r),(int) (this.g*g),(int) (this.b*b),(int) (this.a*a));
+            return new Color((int) (this.r*r),(int) (this.g*g),(int) (this.b*b),(int) (this.a*a));
         }
 
         public Color multiply(float factor){
@@ -673,7 +689,7 @@ public class THObject{
         }
 
         public Color divide(float r, float g, float b, float a){
-            return Color((int) (this.r/r),(int) (this.g/g),(int) (this.b/b),(int) (this.a/a));
+            return new Color((int) (this.r/r),(int) (this.g/g),(int) (this.b/b),(int) (this.a/a));
         }
 
         public Color divide(float factor){
