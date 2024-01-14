@@ -58,9 +58,10 @@ public class ScriptManager{
         this.script = buffer.readNbt().getString("script");
     }
 
-    public void save(CompoundTag tag){
+    public CompoundTag save(CompoundTag tag){
         tag.putBoolean("ShouldExecuteScript",this.shouldExecuteScript);
         tag.putString("Script",this.script);
+        return tag;
     }
 
     public void load(CompoundTag tag){

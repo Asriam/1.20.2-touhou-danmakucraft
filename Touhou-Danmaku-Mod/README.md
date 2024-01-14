@@ -1,2 +1,0 @@
-# Touhou Danmaku Mod
- 

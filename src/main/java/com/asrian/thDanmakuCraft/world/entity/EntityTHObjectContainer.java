@@ -71,7 +71,6 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
                         "var Mth = Java.type('net.minecraft.util.Mth');" +
                         "var Vec2 = Java.type('net.minecraft.world.phys.Vec2');" +
                         "function onTick(object){" +
-                        "   /*object.move(Mth.sin(object.getTimer()*0.1),0,Mth.cos(object.getTimer()*0.1));*/" +
                         "   object.setVelocity(0.2,new Vec2(0.0," + i + "*360/8+60*Mth.cos(object.getTimer()*0.3)),true,true);" +
                         "}");
             }
@@ -198,6 +197,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         buffer.writeInt(this.timer);
         buffer.writeBoolean(this.positionBinding);
         this.objectManager.writeData(buffer);
+        this.scriptManager.writeData(buffer);
     }
 
     @Override
@@ -206,6 +206,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         this.timer = additionalData.readInt();
         this.positionBinding = additionalData.readBoolean();
         this.objectManager.readData(additionalData);
+        this.scriptManager.readData(additionalData);
         this.setUser(entity);
     }
 
@@ -213,11 +214,13 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
         compoundTag.putInt("Timer",this.timer);
         compoundTag.put("object_storage", this.objectManager.save());
+        compoundTag.put("script",this.scriptManager.save(new CompoundTag()));
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
         this.timer = compoundTag.getInt("Timer");
         this.objectManager.load(compoundTag.getCompound("object_storage"));
+        this.scriptManager.load(compoundTag.getCompound("script"));
     }
 }
