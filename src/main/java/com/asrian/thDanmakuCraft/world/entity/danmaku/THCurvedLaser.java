@@ -1,6 +1,5 @@
 package com.asrian.thDanmakuCraft.world.entity.danmaku;
 
-import com.asrian.thDanmakuCraft.THDanmakuCraftCore;
 import com.asrian.thDanmakuCraft.client.renderer.THObjectRenderHelper;
 import com.asrian.thDanmakuCraft.client.renderer.THRenderType;
 import com.asrian.thDanmakuCraft.client.renderer.entity.EntityTHObjectContainerRenderer;
@@ -289,7 +288,7 @@ public class THCurvedLaser extends THObject {
             List<Node> nodes = Lists.newArrayList();
             for(int i=0;i<list_size;i++){
                 Node node = new Node(laser.getPosition());
-                node.load(tag.getCompound("node_"+i));
+                node.load(listTag.getCompound("node_"+i));
                 nodes.add(node);
             }
             this.updateAllNode(nodes);
@@ -383,22 +382,25 @@ public class THCurvedLaser extends THObject {
 
         public void writeData(FriendlyByteBuf byteBuf){
             byteBuf.writeVec3(this.position);
+            byteBuf.writeVec3(this.lastPosition);
         }
 
         public void readData(FriendlyByteBuf byteBuf){
-            Vec3 pos = byteBuf.readVec3();
-            this.setPosition(pos);
-            THDanmakuCraftCore.LOGGER.info(""+pos);
+            this.position = byteBuf.readVec3();
+            this.lastPosition = byteBuf.readVec3();
         }
 
         public CompoundTag save(CompoundTag tag){
             tag.put("Pos",newDoubleList(this.position.x,this.position.y,this.position.z));
+            tag.put("LastPos",newDoubleList(this.lastPosition.x,this.lastPosition.y,this.lastPosition.z));
             return tag;
         }
 
         public void load(CompoundTag tag){
             ListTag posTag = tag.getList("Pos", Tag.TAG_DOUBLE);
-            this.setPosition(new Vec3(posTag.getDouble(0),posTag.getDouble(1),posTag.getDouble(2)));
+            ListTag LastPosTag = tag.getList("LastPos", Tag.TAG_DOUBLE);
+            this.position = new Vec3(posTag.getDouble(0),posTag.getDouble(1),posTag.getDouble(2));
+            this.lastPosition = new Vec3(LastPosTag.getDouble(0),LastPosTag.getDouble(1),LastPosTag.getDouble(2));
         }
     }
 }
