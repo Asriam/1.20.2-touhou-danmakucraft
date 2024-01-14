@@ -4,12 +4,11 @@ import com.asrian.thDanmakuCraft.registries.THDanmakuCraftRegistries;
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
-public class THObjectType<T extends THObject> {
-    private final THObjectType.THObjectFactory<T> factory;
+public record THObjectType<T extends THObject>(THObjectFactory<T> factory) {
 
-    public static ResourceLocation getKey(THObjectType<?> object) {
+    public static ResourceLocation getKey(THObjectType<? extends THObject> object) {
         return THDanmakuCraftRegistries.THOBJECT_TYPE.getKey(object);
     }
 
@@ -17,29 +16,20 @@ public class THObjectType<T extends THObject> {
         return THDanmakuCraftRegistries.THOBJECT_TYPE.getKey(this);
     }
 
-    public static THObjectType<? extends THObject> getValue(ResourceLocation key){
-        return THDanmakuCraftRegistries.THOBJECT_TYPE.getValue(key);
-    }
-
     public Class<? extends THObject> getBaseClass() {
         return THObject.class;
     }
 
     @Nullable
+    public static THObjectType<? extends THObject> getValue(ResourceLocation key) {
+        return THDanmakuCraftRegistries.THOBJECT_TYPE.getValue(key);
+    }
+
     public T create(EntityTHObjectContainer container) {
         return this.factory.create(this, container);
     }
 
-    public THObjectType(THObjectType.THObjectFactory<T> factory) {
-        this.factory = factory;
-    }
-
-    public static class Builder<T extends THObject> {
-        private final THObjectType.THObjectFactory<T> factory;
-
-        public Builder(THObjectFactory<T> factory) {
-            this.factory = factory;
-        }
+    public record Builder<T extends THObject>(THObjectFactory<T> factory) {
 
         public static <T extends THObject> Builder<T> of(THObjectType.THObjectFactory<T> factory) {
             return new THObjectType.Builder<>(factory);

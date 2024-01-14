@@ -38,7 +38,6 @@ public class THCurvedLaser extends THObject {
     public THCurvedLaser(THObjectType<THCurvedLaser> type, EntityTHObjectContainer container) {
         super(type, container);
         this.nodeManager = new NodeManager(this);
-        this.laserColor = THBullet.BULLET_COLOR.COLOR_BLUE;
     }
 
     public THCurvedLaser(EntityTHObjectContainer container,THBullet.BULLET_COLOR laserColor, int nodeMount, float width){
@@ -47,7 +46,7 @@ public class THCurvedLaser extends THObject {
         this.nodeMount = nodeMount;
         this.nodeManager.initNodeList(nodeMount);
         this.width = width;
-    };
+    }
 
     @Override
     public void writeData(FriendlyByteBuf buffer) {
@@ -91,6 +90,11 @@ public class THCurvedLaser extends THObject {
     }
 
     @Override
+    public void collision(){
+
+    }
+
+    @Override
     @OnlyIn(value = Dist.CLIENT)
     public void onRender(EntityTHObjectContainerRenderer renderer, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedOverlay) {
         if (this.color.a <= 0) {
@@ -100,7 +104,7 @@ public class THCurvedLaser extends THObject {
         poseStack.pushPose();
         Vec3 camPos = renderer.dispatcher.camera.getPosition();
         //THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(this,camPos.x,camPos.y,camPos.z);
-        int edge = 6;
+        int edge = 8;
         Color indexColor = this.laserColor.getColor();
         Color color = Color(
                 this.color.r * indexColor.r/255,
@@ -115,7 +119,7 @@ public class THCurvedLaser extends THObject {
     }
 
     @OnlyIn(value = Dist.CLIENT)
-    public static void renderCurvedLaser(EntityTHObjectContainerRenderer renderer, VertexConsumer vertexConsumer, PoseStack poseStack, List<Node> nodeList, float width, float coreWidth, int edge, Color laserColor, Color coreColor, float partialTicks, int combinedOverlay, float laserLength, float coreLength) {
+    public static void renderCurvedLaser(EntityTHObjectContainerRenderer renderer, VertexConsumer vertexConsumer, PoseStack poseStack, List<LaserNode> nodeList, float width, float coreWidth, int edge, Color laserColor, Color coreColor, float partialTicks, int combinedOverlay, float laserLength, float coreLength) {
         //if(nodeList.isEmpty() || nodeList.size() < 3){
         //    return;
         //}
@@ -126,16 +130,16 @@ public class THCurvedLaser extends THObject {
         final float perAngle = Mth.DEG_TO_RAD * 360.0f/edge;
 
         int index = 0;
-        for(Node node:nodeList){
+        for(LaserNode node:nodeList){
             if(index >= nodeList.size()-1){
                 break;
             }
 
-            Node node2 = nodeList.get(index+1);
+            LaserNode node2 = nodeList.get(index+1);
             final Vec3 pos1 = node.getOffsetPosition(partialTicks);
             final Vec3 pos2 = node2.getOffsetPosition(partialTicks);
             boolean flag = index >= nodeList.size()-2;
-            Node node3 = !flag ? nodeList.get(index+2) : null;
+            LaserNode node3 = !flag ? nodeList.get(index+2) : null;
             Vec2 aaa1 = THObject.VectorAngleToEulerRadAngle(pos1.vectorTo(pos2));
             Vec2 aaa2 = node3 != null ? THObject.VectorAngleToEulerRadAngle(pos2.vectorTo(node3.getOffsetPosition(partialTicks))) : aaa1;
             Vec2 angle1 = new Vec2(aaa1.x-Mth.DEG_TO_RAD*90.0f,aaa1.y);
@@ -179,7 +183,7 @@ public class THCurvedLaser extends THObject {
         }
     }
 
-    public static boolean shouldRenderNode(Node node1, Node node2, Frustum frustum) {
+    public static boolean shouldRenderNode(LaserNode node1, LaserNode node2, Frustum frustum) {
         AABB aabb1 = node1.getBoundingBoxForCulling().inflate(0.5D);
         AABB aabb2 = node2.getBoundingBoxForCulling().inflate(0.5D);
         if (aabb1.hasNaN() || aabb1.getSize() == 0.0D) {
@@ -198,7 +202,7 @@ public class THCurvedLaser extends THObject {
     }
 
     public static class NodeManager{
-        private final List<Node> nodeList;
+        private final List<LaserNode> nodeList;
         private final THCurvedLaser laser;
 
         public NodeManager(THCurvedLaser laser) {
@@ -208,7 +212,7 @@ public class THCurvedLaser extends THObject {
 
         public NodeManager initNodeList(int nodeMount){
             for(int i=0;i<nodeMount;i++){
-                this.nodeList.add(new Node(laser.getPosition()));
+                this.nodeList.add(new LaserNode(laser.getPosition(),laser.size));
             }
             return this;
         }
@@ -218,8 +222,8 @@ public class THCurvedLaser extends THObject {
                 return;
             }
             for (int index = 0; index < this.nodeList.size(); index++){
-                Node node = this.nodeList.get(index);
-                Node lastNode = index > 0 ? this.nodeList.get(index-1) : null;
+                LaserNode node = this.nodeList.get(index);
+                LaserNode lastNode = index > 0 ? this.nodeList.get(index-1) : null;
                 if(index == 0){
                     node.updateNode(pos);
                 }else {
@@ -239,7 +243,7 @@ public class THCurvedLaser extends THObject {
 
             int index = 0;
             for(Vec3 pos:posList){
-                Node node = this.getNode(index);
+                LaserNode node = this.getNode(index);
                 if (node != null){
                     node.updateNode(pos);
                 }
@@ -247,23 +251,23 @@ public class THCurvedLaser extends THObject {
             }
         }
 
-        public void updateAllNode(List<Node> nodeList){
+        public void updateAllNode(List<LaserNode> nodeList){
             this.nodeList.clear();
             this.nodeList.addAll(nodeList);
         }
 
         public void writeData(FriendlyByteBuf buffer){
             buffer.writeInt(this.nodeList.size());
-            for(Node node:this.nodeList){
+            for(LaserNode node:this.nodeList){
                 node.writeData(buffer);
             }
         }
 
         public void readData(FriendlyByteBuf buffer){
             int size = buffer.readInt();
-            List<Node> nodes = Lists.newArrayList();
+            List<LaserNode> nodes = Lists.newArrayList();
             for(short i=0;i<size;i++){
-                Node node = new Node(laser.getPosition());
+                LaserNode node = new LaserNode(laser.getPosition(),laser.size);
                 node.readData(buffer);
                 nodes.add(node);
             }
@@ -274,7 +278,7 @@ public class THCurvedLaser extends THObject {
         public CompoundTag save(CompoundTag tag){
             int index = 0;
             CompoundTag list = new CompoundTag();
-            for(Node node:this.nodeList) {
+            for(LaserNode node:this.nodeList) {
                 list.put("node_"+index,node.save(new CompoundTag()));
                 index++;
             }
@@ -285,9 +289,9 @@ public class THCurvedLaser extends THObject {
         public void load(CompoundTag tag){
             CompoundTag listTag = tag.getCompound("nodes");
             int list_size = listTag.getAllKeys().size();
-            List<Node> nodes = Lists.newArrayList();
+            List<LaserNode> nodes = Lists.newArrayList();
             for(int i=0;i<list_size;i++){
-                Node node = new Node(laser.getPosition());
+                LaserNode node = new LaserNode(laser.getPosition(),laser.size);
                 node.load(listTag.getCompound("node_"+i));
                 nodes.add(node);
             }
@@ -298,11 +302,11 @@ public class THCurvedLaser extends THObject {
             this.nodeList.clear();
         }
 
-        public void addNode(Node node){
+        public void addNode(LaserNode node){
             this.nodeList.add(node);
         }
 
-        public void removeNode(Node node){
+        public void removeNode(LaserNode node){
             this.nodeList.remove(node);
         }
 
@@ -314,11 +318,11 @@ public class THCurvedLaser extends THObject {
             this.nodeList.removeIf(filter);
         }
 
-        public List<Node> getNodes(){
+        public List<LaserNode> getNodes(){
             return this.nodeList;
         }
 
-        public Node getNode(int index){
+        public LaserNode getNode(int index){
             if(index > this.nodeList.size()-1 || index < 0){
                 return null;
             }
@@ -327,15 +331,16 @@ public class THCurvedLaser extends THObject {
         }
     }
 
-    public static class Node{
+    public static class LaserNode {
         private Vec3 position;
         private Vec3 lastPosition;
         private AABB bb = INITIAL_AABB;
-        private Vec3 size = new Vec3(0.5f,0.5f,0.5f);
+        private Vec3 size;/* = new Vec3(0.5f,0.5f,0.5f);*/
 
-        public Node(Vec3 pos){
+        public LaserNode(Vec3 pos, Vec3 size){
             this.lastPosition =  pos;
             this.position = pos;
+            this.size = size;
         }
 
         public void updateNode(Vec3 position){

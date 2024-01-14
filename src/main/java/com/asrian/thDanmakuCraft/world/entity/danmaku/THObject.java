@@ -22,6 +22,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.*;
 
+import java.lang.Math;
 import java.util.List;
 
 public class THObject{
@@ -29,7 +30,7 @@ public class THObject{
     private final ScriptManager scriptManager;
     private Level level;
     private EntityTHObjectContainer container;
-    protected static final ResourceLocation TEXTURE_WHITE = new ResourceLocation(THDanmakuCraftCore.MODID, "textures/danmaku/white.png");
+    protected static final ResourceLocation TEXTURE_WHITE = new ResourceLocation(THDanmakuCraftCore.MODID, "textures/white.png");
     protected ResourceLocation TEXTURE = TEXTURE_WHITE;
     protected static final AABB INITIAL_AABB = new AABB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
     protected AABB bb = INITIAL_AABB;
@@ -151,7 +152,7 @@ public class THObject{
 
     public void setAcceleration(Vec3 acceleration){
         this.acceleration = acceleration;
-    };
+    }
 
     public void setAcceleration(float acceleration, Vec3 rotation){
         this.setAcceleration(rotation.normalize().multiply(acceleration,acceleration,acceleration));
@@ -377,16 +378,14 @@ public class THObject{
 
     public void onHit(HitResult result) {
         if (result.getType() != HitResult.Type.MISS) {
-            if (result.getType() == HitResult.Type.ENTITY){
-                EntityHitResult entityHitResult = (EntityHitResult) result;
+            if (result.getType() == HitResult.Type.ENTITY && result instanceof EntityHitResult entityHitResult){
                 Entity entity = entityHitResult.getEntity();
-                if(entity != null && (entity instanceof EntityTHObjectContainer || (!this.canHitUser && entity.equals(this.container.getUser()))))
+                if(entity instanceof EntityTHObjectContainer || !this.canHitUser && entity.equals(this.container.getUser()))
                     return;
                 this.onHitEntity(entityHitResult);
             }
 
-            if (result.getType() == HitResult.Type.BLOCK){
-                BlockHitResult blockHitResult = (BlockHitResult) result;
+            if (result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult blockHitResult){
                 this.onHitBlock(blockHitResult);
             }
             this.setDead();
@@ -429,10 +428,6 @@ public class THObject{
 
     public THObjectType<?> getType() {
         return this.type;
-    }
-
-    public static THObject create(THObjectType objectType, EntityTHObjectContainer container) {
-        return objectType.create(container);
     }
 
     public void writeData(FriendlyByteBuf buffer){
@@ -546,7 +541,7 @@ public class THObject{
     }
 
     public boolean shouldRenderAtSqrDistance(double sqrDist, double distance) {
-        double d0 = (this.getBoundingBox().getSize()<1.0D? 1.0D:this.getBoundingBox().getSize())  * 4.0D;
+        double d0 = (Math.max(this.getBoundingBox().getSize(), 1.0D))  * 4.0D;
         if (Double.isNaN(d0)) {
             d0 = 4.0D;
         }

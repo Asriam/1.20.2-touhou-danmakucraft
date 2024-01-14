@@ -28,7 +28,6 @@ public class THBulletRenderers {
     }
 
     public static void render3DBullet(EntityTHObjectContainerRenderer renderer, THBullet bullet, THBulletRenderers.THBulletRenderFactory factory, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int p_114710_) {
-        //VertexConsumer vertexconsumer = bufferSource.getBuffer(THRenderType.LIGHTNING);
         THObject.Color indexColor = bullet.getBulletColor().getColor();
         THObject.Color color = THObject.Color(
                 bullet.color.r * indexColor.r/255,

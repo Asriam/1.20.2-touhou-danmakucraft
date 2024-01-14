@@ -1,5 +1,6 @@
 package com.asrian.thDanmakuCraft.world.entity.danmaku;
 
+import com.asrian.thDanmakuCraft.THDanmakuCraftCore;
 import com.asrian.thDanmakuCraft.registries.THDanmakuCraftRegistries;
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
 import net.minecraft.nbt.CompoundTag;
@@ -25,6 +26,10 @@ public class THObjectManager{
     }
 
     public void addTHObject(THObject object){
+        if(this.storage.size() >= this.container.getMaxObjectAmount()){
+            THDanmakuCraftCore.LOGGER.warn("{}'s object pool is full! (Max is {})",this.container,this.container.getMaxObjectAmount());
+            return;
+        }
         this.storage.add(object);
     }
 
@@ -37,7 +42,7 @@ public class THObjectManager{
     }
 
     public void removeTHObject(int index){
-        this.storage.remove(index);
+        this.storage.remove(this.getTHObject(index));
     }
 
     public THObject getTHObject(int index){
@@ -82,7 +87,9 @@ public class THObjectManager{
         int listSize = buffer.readInt();
         List<THObject> objects = Lists.newArrayList();
         for(int i=0;i<listSize;i++){
-            THObject object = ((THObjectType) buffer.readRegistryId()).create(this.container);
+            //THObject object = ((THObjectType) buffer.readRegistryId()).create(this.container);
+            THObject object = buffer.readRegistryIdSafe(THObjectType.class).create(this.container);
+            assert object != null;
             object.readData(buffer);
             objects.add(object);
         }
@@ -105,7 +112,7 @@ public class THObjectManager{
         for (int i=0;i<list_size;i++){
             CompoundTag objectTag = tag.getCompound("object_"+i);
             ResourceLocation object_type = new ResourceLocation(objectTag.getString("type"));
-            THObjectType<THObject> type = THDanmakuCraftRegistries.THOBJECT_TYPE.getValue(object_type);
+            THObjectType<? extends THObject> type = THObjectType.getValue(object_type);
             if(type != null){
                 THObject object = type.create(container);
                 object.load(objectTag);

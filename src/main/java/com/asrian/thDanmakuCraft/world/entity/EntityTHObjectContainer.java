@@ -1,7 +1,9 @@
 package com.asrian.thDanmakuCraft.world.entity;
 
 import com.asrian.thDanmakuCraft.init.EntityInit;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.*;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.ScriptManager;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectManager;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -18,16 +20,16 @@ import java.util.List;
 
 public class EntityTHObjectContainer extends Entity implements IEntityAdditionalSpawnData {
 
-    protected @Nullable Entity user;
+    protected @Nullable
+    Entity user;
     public boolean noCulling;
     private final ScriptManager scriptManager;
-
-    protected final THObjectManager objectManager;
-    public int timer = 0;
+    private final THObjectManager objectManager;
+    private int timer = 0;
     public AABB aabb = new AABB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
     public AABB bound = new AABB(-60.0D,-60.0D,-60.0D,60.0D,60.0D,60.0D);
     public boolean positionBinding = false;
-    public int maxObjectAmount = 1000;
+    private int maxObjectAmount = 1000;
 
     public EntityTHObjectContainer(EntityType<? extends EntityTHObjectContainer> type, Level level) {
         super(type, level);
@@ -39,13 +41,11 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     public EntityTHObjectContainer(@Nullable LivingEntity user, Level level, Vec3 pos) {
         this(EntityInit.ENTITY_THDANMAKU_CONTAINER.get(), level);
         this.user = user;
-        setPos(pos);
+        this.setPos(pos);
     }
 
     @Override
     protected void defineSynchedData() {
-        //this.entityData.define(DATA_OBJECT_TAGS, new CompoundTag());
-        //this.entityData.define(DATA_TIMER, 0);
     }
 
     @Override
@@ -53,16 +53,31 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         super.onAddedToWorld();
     }
 
+    public int getMaxObjectAmount() {
+        return maxObjectAmount;
+    }
+
+    public void setMaxObjectAmount(int maxObjectAmount) {
+        this.maxObjectAmount = maxObjectAmount;
+    }
+
+    public int getTimer() {
+        return timer;
+    }
+
+    public void setTimer(int timer) {
+        this.timer = timer;
+    }
+
     @Override
     public void tick() {
         super.tick();
-        //this.positionBinding = true;
         if(this.positionBinding && this.user != null){
             this.setPos(this.user.position());
         }
         this.setBound(this.position(),this.bound);
 
-
+        /*
         if(this.objectManager.isEmpty() && true) {
             for(int i=0;i<8;i++) {
                 THCurvedLaser laser = (THCurvedLaser) new THCurvedLaser(this, THBullet.BULLET_COLOR.COLOR_CHARTREUSE, 180, 0.5f).initPosition(this.position()).shoot(new Vec3(0.0f, 0, 0));
@@ -74,7 +89,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
                         "   object.setVelocity(0.2,new Vec2(0.0," + i + "*360/8+60*Mth.cos(object.getTimer()*0.3)),true,true);" +
                         "}");
             }
-        }
+        }*/
 
         /*
         if(this.objectManager.isEmpty() && false) {
@@ -93,7 +108,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
             }
         }
 
-        if((this.timer+2)%1==0 && false) {
+        if((this.timer+2)%1==0) {
             Vec3 pos = this.position();
             Vec3 rotation = Vec3.directionFromRotation(0.0f,0.0f);
             Vec2 rotate = new Vec2(Mth.DEG_TO_RAD*((float) Math.pow(this.timer*0.1f,2)+360.0f/5),-Mth.DEG_TO_RAD*((float) Math.pow(this.timer*0.1f,2)+360.0f/5));
@@ -183,10 +198,11 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         return this.objectManager;
     }
 
-    public void setUser(Entity entity){
+    public void setUser(@Nullable Entity entity){
         this.user = entity;
     }
 
+    @Nullable
     public Entity getUser(){
         return this.user;
     }
@@ -194,6 +210,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeVarInt(this.user != null ? this.user.getId() : 0);
+        buffer.writeInt(this.maxObjectAmount);
         buffer.writeInt(this.timer);
         buffer.writeBoolean(this.positionBinding);
         this.objectManager.writeData(buffer);
@@ -203,6 +220,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     @Override
     public void readSpawnData(FriendlyByteBuf additionalData) {
         Entity entity = this.level().getEntity(additionalData.readVarInt());
+        this.maxObjectAmount = additionalData.readInt();
         this.timer = additionalData.readInt();
         this.positionBinding = additionalData.readBoolean();
         this.objectManager.readData(additionalData);
@@ -213,6 +231,8 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
         compoundTag.putInt("Timer",this.timer);
+        compoundTag.putInt("MaxObjectAmount",this.maxObjectAmount);
+        compoundTag.putBoolean("PositionBinding",this.positionBinding);
         compoundTag.put("object_storage", this.objectManager.save());
         compoundTag.put("script",this.scriptManager.save(new CompoundTag()));
     }
@@ -220,6 +240,8 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
         this.timer = compoundTag.getInt("Timer");
+        this.maxObjectAmount = compoundTag.getInt("MaxObjectAmount");
+        this.positionBinding = compoundTag.getBoolean("PositionBinding");
         this.objectManager.load(compoundTag.getCompound("object_storage"));
         this.scriptManager.load(compoundTag.getCompound("script"));
     }

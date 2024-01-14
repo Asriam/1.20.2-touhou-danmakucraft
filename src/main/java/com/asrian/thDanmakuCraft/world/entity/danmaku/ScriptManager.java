@@ -8,9 +8,9 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 
 public class ScriptManager{
-    public String script = "";
-    public boolean shouldExecuteScript;
-    public final ScriptEngine engine = THDanmakuCraftCore.getEngine();
+    private String script = "";
+    private boolean shouldExecuteScript;
+    private final ScriptEngine engine = THDanmakuCraftCore.getEngine();
 
     public ScriptManager(){
 

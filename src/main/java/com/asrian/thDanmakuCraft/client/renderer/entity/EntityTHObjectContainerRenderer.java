@@ -78,8 +78,8 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
     }
 
     private static void renderTHCurvedLaserHitBoxes(THCurvedLaser laser, PoseStack poseStack, VertexConsumer vertexConsumer, float partialTicks, Frustum frustum, Vec3 cameraPosition){
-        List<THCurvedLaser.Node> nodes = laser.nodeManager.getNodes();
-        for(THCurvedLaser.Node node: nodes){
+        List<THCurvedLaser.LaserNode> nodes = laser.nodeManager.getNodes();
+        for(THCurvedLaser.LaserNode node: nodes){
             Vec3 pos = node.getPosition();
             AABB aabb = node.getBoundingBoxForCulling().inflate(0.5D);
             if (aabb.hasNaN() || aabb.getSize() == 0.0D) {
@@ -124,7 +124,7 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
     }
 
     @Override
-    public ResourceLocation getTextureLocation(EntityTHObjectContainer p_114482_) {
+    public ResourceLocation getTextureLocation(EntityTHObjectContainer container) {
         return null;
     }
 }

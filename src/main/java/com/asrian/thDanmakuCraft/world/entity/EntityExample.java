@@ -1,7 +1,6 @@
 package com.asrian.thDanmakuCraft.world.entity;
 
 import com.asrian.thDanmakuCraft.init.EntityInit;
-import com.asrian.thDanmakuCraft.THDanmakuCraftCore;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -16,20 +15,12 @@ public class EntityExample extends Entity{
 
     public EntityExample(EntityType<EntityExample> type, Level level) {
         super(type,level);
-        //THDanmakuCraftCore.LOGGER.info("LOAD!!!!!!!!!!!!!!!!!!!!!");
-        //this.index = random.nextInt(1,16);
-        //this.entityData.set(INDEX, this.random.nextInt(1,16));
     }
 
     public EntityExample(Level level, Vec3 pos){
         this(EntityInit.EXAMPLE_ENTITY.get(),level);
         this.setPos(pos);
-        //this.entityData.set(INDEX, 8);
     }
-    /*
-    public EntityExample(Level level){
-        this(EntityInit.EXAMPLE_ENTITY.get(),level);
-    };*/
 
     public int getIndex(){
         return this.entityData.get(INDEX);
