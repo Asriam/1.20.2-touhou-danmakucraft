@@ -1,20 +1,14 @@
 package com.asrian.thDanmakuCraft.world.entity;
 
-import com.asrian.thDanmakuCraft.client.renderer.THRenderType;
 import com.asrian.thDanmakuCraft.init.EntityInit;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THBullet;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectManager;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THCurvedLaser;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import org.apache.commons.compress.utils.Lists;
@@ -26,6 +20,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
 
     protected @Nullable Entity user;
     public boolean noCulling;
+    private final ScriptManager scriptManager;
 
     protected final THObjectManager objectManager;
     public int timer = 0;
@@ -36,6 +31,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
 
     public EntityTHObjectContainer(EntityType<? extends EntityTHObjectContainer> type, Level level) {
         super(type, level);
+        this.scriptManager = new ScriptManager();
         this.noCulling = false;
         this.objectManager = new THObjectManager(this);
     }
@@ -66,6 +62,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         }
         this.setBound(this.position(),this.bound);
 
+
         if(this.objectManager.isEmpty() && true) {
             for(int i=0;i<8;i++) {
                 THCurvedLaser laser = (THCurvedLaser) new THCurvedLaser(this, THBullet.BULLET_COLOR.COLOR_CHARTREUSE, 180, 0.5f).initPosition(this.position()).shoot(new Vec3(0.0f, 0, 0));
@@ -80,6 +77,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
             }
         }
 
+        /*
         if(this.objectManager.isEmpty() && false) {
             for (int j = 0; j< THBullet.BULLET_STYLE.class.getEnumConstants().length; j++) {
                 for (int i = 0; i < 16; i++) {
@@ -134,7 +132,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
             );
             danmaku3.setAcceleration(0.02f, angle3);
             danmaku3.setLifetime(120);
-        }
+        }*/
 
         this.updateObjects();
         this.timer++;

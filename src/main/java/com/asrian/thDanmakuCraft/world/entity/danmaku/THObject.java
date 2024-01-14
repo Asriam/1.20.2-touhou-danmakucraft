@@ -22,12 +22,11 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.*;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
 import java.util.List;
 
 public class THObject{
     private final THObjectType<? extends THObject> type;
+    private final ScriptManager scriptManager;
     private Level level;
     private EntityTHObjectContainer container;
     protected static final ResourceLocation TEXTURE_WHITE = new ResourceLocation(THDanmakuCraftCore.MODID, "textures/danmaku/white.png");
@@ -63,8 +62,6 @@ public class THObject{
     public boolean removeFlag = false;
     protected boolean faceToCamera = true;
     protected boolean canHitUser = false;
-
-    protected ScriptManager scriptManager;
 
     public Color color = Color(255,255,255,255);
     public THRenderType.BLEND _blend = THRenderType.BLEND.LIGHTEN;
@@ -695,67 +692,5 @@ public class THObject{
 
     public static Color Color(int r, int g, int b){
         return Color(r,g,b,255);
-    }
-
-    private static class ScriptManager{
-        public String script = "";
-        public boolean shouldExecuteScript;
-        public final ScriptEngine engine = THDanmakuCraftCore.getEngine();
-
-        ScriptManager(){
-
-        }
-
-        public boolean hasScript(){
-            return this.script != null && !this.script.equals("");
-        }
-
-        public void setScript(String script){
-            this.script = script;
-        }
-
-        public void setShouldExecuteScript(boolean shouldExecuteScript) {
-            this.shouldExecuteScript = shouldExecuteScript;
-        }
-
-        public void enableScript(){
-            this.shouldExecuteScript = true;
-        }
-
-        public void disableScript(){
-            this.shouldExecuteScript = false;
-        }
-
-        public ScriptEngine invokeScript(String functionName, Object... args) throws Exception{
-            if(!this.shouldExecuteScript && !this.hasScript()){
-                return null;
-            }
-            engine.eval(this.script);
-            Invocable invocable = (Invocable) engine;
-            invocable.invokeFunction(functionName,args);
-            return engine;
-        }
-
-        public void writeData(FriendlyByteBuf buffer){
-            buffer.writeBoolean(this.shouldExecuteScript);
-            CompoundTag tag = new CompoundTag();
-            tag.putString("script",this.script);
-            buffer.writeNbt(tag);
-        }
-
-        public void readData(FriendlyByteBuf buffer){
-            this.shouldExecuteScript = buffer.readBoolean();
-            this.script = buffer.readNbt().getString("script");
-        }
-
-        public void save(CompoundTag tag){
-            tag.putBoolean("ShouldExecuteScript",this.shouldExecuteScript);
-            tag.putString("Script",this.script);
-        }
-
-        public void load(CompoundTag tag){
-            this.shouldExecuteScript = tag.getBoolean("ShouldExecuteScript");
-            this.script = tag.getString("Script");
-        }
     }
 }
