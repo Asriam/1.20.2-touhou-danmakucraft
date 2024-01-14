@@ -1,5 +1,6 @@
 package com.asrian.thDanmakuCraft.world.entity.danmaku;
 
+import com.asrian.thDanmakuCraft.THDanmakuCraftCore;
 import com.asrian.thDanmakuCraft.client.renderer.THObjectRenderHelper;
 import com.asrian.thDanmakuCraft.client.renderer.THRenderType;
 import com.asrian.thDanmakuCraft.client.renderer.entity.EntityTHObjectContainerRenderer;
@@ -29,7 +30,7 @@ import java.util.function.Predicate;
 
 public class THCurvedLaser extends THObject {
 
-    protected THBullet.BULLET_COLOR laserColor;
+    public THBullet.BULLET_COLOR laserColor;
     public final NodeManager nodeManager;
     public int nodeMount;
     public float width;
@@ -52,18 +53,24 @@ public class THCurvedLaser extends THObject {
     @Override
     public void writeData(FriendlyByteBuf buffer) {
         super.writeData(buffer);
+        buffer.writeFloat(this.width);
+        buffer.writeEnum(this.laserColor);
         this.nodeManager.writeData(buffer);
     }
 
     @Override
     public void readData(FriendlyByteBuf buffer){
         super.readData(buffer);
+        this.width = buffer.readFloat();
+        this.laserColor = buffer.readEnum(THBullet.BULLET_COLOR.class);
         this.nodeManager.readData(buffer);
     }
 
     @Override
     public CompoundTag save(CompoundTag tag) {
         CompoundTag nbt = super.save(tag);
+        tag.putFloat("Width",this.width);
+        tag.putInt("LaserColor",this.laserColor.ordinal());
         this.nodeManager.save(tag);
         return nbt;
     }
@@ -71,6 +78,8 @@ public class THCurvedLaser extends THObject {
     @Override
     public void load(CompoundTag tag){
         super.load(tag);
+        this.width = tag.getFloat("Width");
+        this.laserColor = THBullet.BULLET_COLOR.class.getEnumConstants()[tag.getInt("LaserColor")];
         this.nodeManager.load(tag);
     }
 
@@ -108,9 +117,9 @@ public class THCurvedLaser extends THObject {
 
     @OnlyIn(value = Dist.CLIENT)
     public static void renderCurvedLaser(EntityTHObjectContainerRenderer renderer, VertexConsumer vertexConsumer, PoseStack poseStack, List<Node> nodeList, float width, float coreWidth, int edge, Color laserColor, Color coreColor, float partialTicks, int combinedOverlay, float laserLength, float coreLength) {
-        if(nodeList.isEmpty() || nodeList.size() < 3){
-            return;
-        }
+        //if(nodeList.isEmpty() || nodeList.size() < 3){
+        //    return;
+        //}
 
         Matrix4f pose = poseStack.last().pose();
         Matrix3f normal = poseStack.last().normal();
@@ -189,7 +198,7 @@ public class THCurvedLaser extends THObject {
         return Mth.sqrt(1-num*num);
     }
 
-    protected static class NodeManager{
+    public static class NodeManager{
         private final List<Node> nodeList;
         private final THCurvedLaser laser;
 
@@ -200,7 +209,7 @@ public class THCurvedLaser extends THObject {
 
         public NodeManager initNodeList(int nodeMount){
             for(int i=0;i<nodeMount;i++){
-                this.nodeList.add(new Node(laser.getPosition(),laser.width));
+                this.nodeList.add(new Node(laser.getPosition()));
             }
             return this;
         }
@@ -255,7 +264,7 @@ public class THCurvedLaser extends THObject {
             int size = buffer.readInt();
             List<Node> nodes = Lists.newArrayList();
             for(short i=0;i<size;i++){
-                Node node = new Node(laser.getPosition(),laser.width);
+                Node node = new Node(laser.getPosition());
                 node.readData(buffer);
                 nodes.add(node);
             }
@@ -279,7 +288,7 @@ public class THCurvedLaser extends THObject {
             int list_size = listTag.getAllKeys().size();
             List<Node> nodes = Lists.newArrayList();
             for(int i=0;i<list_size;i++){
-                Node node = new Node(laser.getPosition(),laser.width);
+                Node node = new Node(laser.getPosition());
                 node.load(tag.getCompound("node_"+i));
                 nodes.add(node);
             }
@@ -319,17 +328,15 @@ public class THCurvedLaser extends THObject {
         }
     }
 
-    protected static class Node{
+    public static class Node{
         private Vec3 position;
         private Vec3 lastPosition;
         private AABB bb = INITIAL_AABB;
-        private float width;
         private Vec3 size = new Vec3(0.5f,0.5f,0.5f);
 
-        public Node(Vec3 pos, float width){
-            this.position = pos;
+        public Node(Vec3 pos){
             this.lastPosition =  pos;
-            this.width = width;
+            this.position = pos;
         }
 
         public void updateNode(Vec3 position){
@@ -379,7 +386,9 @@ public class THCurvedLaser extends THObject {
         }
 
         public void readData(FriendlyByteBuf byteBuf){
-            this.setPosition(byteBuf.readVec3());
+            Vec3 pos = byteBuf.readVec3();
+            this.setPosition(pos);
+            THDanmakuCraftCore.LOGGER.info(""+pos);
         }
 
         public CompoundTag save(CompoundTag tag){

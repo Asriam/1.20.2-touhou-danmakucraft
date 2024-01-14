@@ -1,8 +1,8 @@
 package com.asrian.thDanmakuCraft.client.renderer.entity;
 
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THCurvedLaser;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -22,6 +22,8 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.List;
+
 @OnlyIn(Dist.CLIENT)
 public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObjectContainer> {
     public final EntityRenderDispatcher dispatcher;
@@ -38,7 +40,6 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
         renderContainerBound(entity, poseStack, bufferSource.getBuffer(RenderType.lines()));
         poseStack.popPose();
         poseStack.pushPose();
-        //Vec3 vec3 = this.getRenderOffset(entity, partialTicks);
         Vec3 cameraPosition = this.dispatcher.camera.getPosition();
         double d2 = cameraPosition.x;
         double d3 = cameraPosition.y;
@@ -51,8 +52,13 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
                 object.onRender(this, partialTicks, poseStack, bufferSource, combinedOverlay);
                 if (this.dispatcher.shouldRenderHitBoxes() && object.colli) {
                     Vec3 offsetPos = object.getOffsetPosition(partialTicks);
-                    poseStack.translate(offsetPos.x(), offsetPos.y(), offsetPos.z());
-                    renderTHObjectsHitBox(object, poseStack, bufferSource.getBuffer(RenderType.lines()));
+                    if(object instanceof THCurvedLaser){
+                        renderTHCurvedLaserHitBoxes((THCurvedLaser) object, poseStack, bufferSource.getBuffer(RenderType.lines()),partialTicks,this.frustum,cameraPosition);
+                        //renderTHObjectsHitBox(object, poseStack, bufferSource.getBuffer(RenderType.lines()));
+                    }else {
+                        poseStack.translate(offsetPos.x(), offsetPos.y(), offsetPos.z());
+                        renderTHObjectsHitBox(object, poseStack, bufferSource.getBuffer(RenderType.lines()));
+                    }
                 }
                 poseStack.popPose();
             }
@@ -69,6 +75,26 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
         Matrix3f matrix3f = poseStack.last().normal();
         vertexConsumer.vertex(matrix4f, 0.0F, 0.0F, 0.0F).color(0, 0, 255, 255).normal(matrix3f, (float)vec31.x, (float)vec31.y, (float)vec31.z).endVertex();
         vertexConsumer.vertex(matrix4f, (float)(vec31.x * 2.0D), (float)((vec31.y * 2.0D)), (float)(vec31.z * 2.0D)).color(0, 0, 255, 255).normal(matrix3f, (float)vec31.x, (float)vec31.y, (float)vec31.z).endVertex();
+    }
+
+    private static void renderTHCurvedLaserHitBoxes(THCurvedLaser laser, PoseStack poseStack, VertexConsumer vertexConsumer, float partialTicks, Frustum frustum, Vec3 cameraPosition){
+        List<THCurvedLaser.Node> nodes = laser.nodeManager.getNodes();
+        for(THCurvedLaser.Node node: nodes){
+            Vec3 pos = node.getPosition();
+            AABB aabb = node.getBoundingBoxForCulling().inflate(0.5D);
+            if (aabb.hasNaN() || aabb.getSize() == 0.0D) {
+                aabb = new AABB(pos.x() - 2.0D, pos.y() - 2.0D, pos.z() - 2.0D, pos.x() + 2.0D, pos.y() + 2.0D, pos.z() + 2.0D);
+            }
+
+            if (frustum.isVisible(aabb)) {
+                poseStack.pushPose();
+                AABB aabb2 = node.getBoundingBox().move(-pos.x(), -pos.y(), -pos.z());
+                Vec3 offsetPos = node.getOffsetPosition(partialTicks);
+                poseStack.translate(offsetPos.x(), offsetPos.y(), offsetPos.z());
+                LevelRenderer.renderLineBox(poseStack, vertexConsumer, aabb2, 0.0F, 1.0F, 1.0F, 1.0F);
+                poseStack.popPose();
+            }
+        }
     }
 
     private static void renderContainerBound(EntityTHObjectContainer entity, PoseStack poseStack, VertexConsumer vertexConsumer) {

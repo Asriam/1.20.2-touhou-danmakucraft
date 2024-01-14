@@ -67,7 +67,7 @@ public class THBullet extends THObject {
     @Override
     public CompoundTag save(CompoundTag tag) {
         CompoundTag nbt = super.save(tag);
-        nbt.putInt("Index",this.bulletColor.ordinal());
+        nbt.putInt("BulletColor",this.bulletColor.ordinal());
         nbt.putInt("Style",this.style.ordinal());
         return nbt;
     }
@@ -75,7 +75,7 @@ public class THBullet extends THObject {
     @Override
     public void load(CompoundTag tag){
         super.load(tag);
-        this.bulletColor = BULLET_COLOR.class.getEnumConstants()[tag.getInt("Index")];
+        this.bulletColor = BULLET_COLOR.class.getEnumConstants()[tag.getInt("BulletColor")];
         this.style = BULLET_STYLE.class.getEnumConstants()[tag.getInt("Style")];
     }
 
