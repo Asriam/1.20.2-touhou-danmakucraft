@@ -460,6 +460,7 @@ public class THObject{
         buffer.writeBoolean(this.isDead);
         buffer.writeBoolean(this.colli);
         buffer.writeBoolean(this.bound);
+        buffer.writeBoolean(this.shouldSave);
         this.scriptManager.writeData(buffer);
     }
 
@@ -489,6 +490,7 @@ public class THObject{
         this.isDead = buffer.readBoolean();
         this.colli = buffer.readBoolean();
         this.bound = buffer.readBoolean();
+        this.shouldSave = buffer.readBoolean();
         this.scriptManager.readData(buffer);
     }
 

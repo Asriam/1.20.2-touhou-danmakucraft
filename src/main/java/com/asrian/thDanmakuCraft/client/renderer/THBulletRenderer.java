@@ -13,7 +13,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class THBulletRenderers {
+public class THBulletRenderer {
     public static void render2DBullet(EntityTHObjectContainerRenderer renderer, THBullet bullet, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int p_114710_) {
         poseStack.mulPose(renderer.dispatcher.cameraOrientation());
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
@@ -27,7 +27,7 @@ public class THBulletRenderers {
                 bullet.getColor());
     }
 
-    public static void render3DBullet(EntityTHObjectContainerRenderer renderer, THBullet bullet, THBulletRenderers.THBulletRenderFactory factory, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int p_114710_) {
+    public static void render3DBullet(EntityTHObjectContainerRenderer renderer, THBullet bullet, THBulletRenderer.THBulletRenderFactory factory, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int p_114710_) {
         THObject.Color indexColor = bullet.getBulletColor().getColor();
         THObject.Color color = THObject.Color(
                 bullet.color.r * indexColor.r/255,
@@ -39,7 +39,7 @@ public class THBulletRenderers {
         factory.render(renderer,bullet, bufferSource,poseStack,p_114710_,partialTicks,color,coreColor);
     }
 
-    public static class bulletsRender {
+    public static class BulletRenderers {
         public static void arrow_big(EntityTHObjectContainerRenderer renderer, THBullet bullet, MultiBufferSource bufferSource, PoseStack poseStack, int p_254296_,float partialTicks,THObject.Color color,THObject.Color coreColor) {
             poseStack.scale(bullet.getScale().x, bullet.getScale().y, bullet.getScale().z);
             Vec3 scale = new Vec3(0.4f,0.8f,0.4f);

@@ -1,7 +1,7 @@
 package com.asrian.thDanmakuCraft.world.entity.danmaku;
 
 import com.asrian.thDanmakuCraft.THDanmakuCraftCore;
-import com.asrian.thDanmakuCraft.client.renderer.THBulletRenderers;
+import com.asrian.thDanmakuCraft.client.renderer.THBulletRenderer;
 import com.asrian.thDanmakuCraft.client.renderer.entity.EntityTHObjectContainerRenderer;
 import com.asrian.thDanmakuCraft.init.THObjectInit;
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
@@ -142,24 +142,24 @@ public class THBullet extends THObject {
     public static final ResourceLocation TEXTURE_ARROW_BIG = new ResourceLocation(THDanmakuCraftCore.MODID, "textures/danmaku/arrow_big.png");
     private static final Vec3 DEFAULT_SIZE = new Vec3(0.5f,0.5f,0.5f);
     public enum BULLET_STYLE {
-        arrow_big(TEXTURE_ARROW_BIG,new Vec3(0.15f,0.15f,0.15f),false, THBulletRenderers.bulletsRender::arrow_big),
+        arrow_big(TEXTURE_ARROW_BIG,new Vec3(0.15f,0.15f,0.15f),false, THBulletRenderer.BulletRenderers::arrow_big),
         arrow_mid,
         arrow_small,
         gun_bullet,
         butterfly,
         square,
         ball_small,
-        ball_mid(TEXTURE_BALL_MID,DEFAULT_SIZE,true, THBulletRenderers.bulletsRender::ball_mid),
+        ball_mid(TEXTURE_BALL_MID,DEFAULT_SIZE,true, THBulletRenderer.BulletRenderers::ball_mid),
         ball_mid_c,
-        ball_big(TEXTURE_BALL_MID,DEFAULT_SIZE,false, THBulletRenderers.bulletsRender::ball_big),
+        ball_big(TEXTURE_BALL_MID,DEFAULT_SIZE,false, THBulletRenderer.BulletRenderers::ball_big),
         ball_huge,
         ball_light,
         star_small, star_big,
-        grain_a(TEXTURE_WHITE,new Vec3(0.15f,0.15f,0.15f),false, THBulletRenderers.bulletsRender::grain_a),
-        grain_b(TEXTURE_WHITE,new Vec3(0.2f,0.2f,0.2f),false, THBulletRenderers.bulletsRender::grain_b),
+        grain_a(TEXTURE_WHITE,new Vec3(0.15f,0.15f,0.15f),false, THBulletRenderer.BulletRenderers::grain_a),
+        grain_b(TEXTURE_WHITE,new Vec3(0.2f,0.2f,0.2f),false, THBulletRenderer.BulletRenderers::grain_b),
         grain_c, kite, knife, knife_b,
         water_drop, mildew,
-        ellipse(TEXTURE_WHITE,DEFAULT_SIZE,false, THBulletRenderers.bulletsRender::ellipse),
+        ellipse(TEXTURE_WHITE,DEFAULT_SIZE,false, THBulletRenderer.BulletRenderers::ellipse),
         heart, money, music, silence,
         water_drop_dark, ball_huge_dark, ball_light_dark;
 
@@ -168,9 +168,9 @@ public class THBullet extends THObject {
         private final boolean faceCam;
         private boolean is3D;
         @Nullable
-        public final THBulletRenderers.THBulletRenderFactory renderFactory;
+        public final THBulletRenderer.THBulletRenderFactory renderFactory;
 
-        BULLET_STYLE(ResourceLocation texture, Vec3 size, boolean faceCam, THBulletRenderers.THBulletRenderFactory factory){
+        BULLET_STYLE(ResourceLocation texture, Vec3 size, boolean faceCam, THBulletRenderer.THBulletRenderFactory factory){
             this.texture = texture;
             this.size = size;
             this.faceCam = faceCam;
@@ -212,10 +212,10 @@ public class THBullet extends THObject {
                 }else {
                     poseStack.mulPose(new Quaternionf().rotationYXZ(object.yRot,object.xRot+Mth.DEG_TO_RAD*90.0f,object.zRot));
                 }
-                THBulletRenderers.render3DBullet(renderer, object,this.renderFactory,partialTicks, poseStack, bufferSource, p_114710_);
+                THBulletRenderer.render3DBullet(renderer, object,this.renderFactory,partialTicks, poseStack, bufferSource, p_114710_);
 
             }else {
-                THBulletRenderers.render2DBullet(renderer, object,partialTicks, poseStack, bufferSource, p_114710_);
+                THBulletRenderer.render2DBullet(renderer, object,partialTicks, poseStack, bufferSource, p_114710_);
             }
             poseStack.popPose();
         }

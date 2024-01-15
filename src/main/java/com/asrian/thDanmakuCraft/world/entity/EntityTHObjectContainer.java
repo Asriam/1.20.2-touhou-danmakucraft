@@ -19,7 +19,7 @@ import org.apache.commons.compress.utils.Lists;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class EntityTHObjectContainer extends Entity implements IEntityAdditionalSpawnData {
+public class EntityTHObjectContainer extends Entity implements IEntityAdditionalSpawnData{
 
     protected @Nullable Entity user;
     protected @Nullable Entity target;
@@ -241,14 +241,14 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     @Override
     public void readSpawnData(FriendlyByteBuf additionalData) {
         Entity user = this.level().getEntity(additionalData.readVarInt());
+        this.setUser(user);
         Entity target = this.level().getEntity(additionalData.readVarInt());
+        this.setTarget(target);
         this.maxObjectAmount = additionalData.readInt();
         this.timer = additionalData.readInt();
         this.positionBinding = additionalData.readBoolean();
         this.objectManager.readData(additionalData);
         this.scriptManager.readData(additionalData);
-        this.setUser(user);
-        this.setTarget(target);
     }
 
     @Override
