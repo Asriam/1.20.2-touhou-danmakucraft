@@ -102,7 +102,7 @@ public class THCurvedLaser extends THObject {
         }
 
         poseStack.pushPose();
-        /**
+        /*
         Vec3 camPos = renderer.dispatcher.camera.getPosition();
         THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(this,camPos.x,camPos.y,camPos.z);
          */
@@ -132,11 +132,11 @@ public class THCurvedLaser extends THObject {
         final float perAngle = Mth.DEG_TO_RAD * 360.0f/edge;
 
         //external
-        Vec3 lastNodePos_1[] = new Vec3[edge];
-        Vec3 lastNodePos_2[] = new Vec3[edge];
+        Vec3[] lastNodePos_1 = new Vec3[edge];
+        Vec3[] lastNodePos_2 = new Vec3[edge];
         //core
-        Vec3 lastNodePos_3[] = new Vec3[edge];
-        Vec3 lastNodePos_4[] = new Vec3[edge];
+        Vec3[] lastNodePos_3 = new Vec3[edge];
+        Vec3[] lastNodePos_4 = new Vec3[edge];
 
         int index = 0;
         for(LaserNode node:nodeList){
