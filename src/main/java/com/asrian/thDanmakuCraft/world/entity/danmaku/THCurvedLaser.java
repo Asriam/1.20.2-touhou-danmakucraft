@@ -34,6 +34,7 @@ public class THCurvedLaser extends THObject {
     public int nodeMount;
     public float width;
     public boolean shouldUpdateNodes = true;
+    public boolean noNodeCulling;
 
     public THCurvedLaser(THObjectType<THCurvedLaser> type, EntityTHObjectContainer container) {
         super(type, container);
@@ -120,6 +121,7 @@ public class THCurvedLaser extends THObject {
         poseStack.popPose();
     }
 
+    //曲線聚光渲染的一坨屎山
     @OnlyIn(value = Dist.CLIENT)
     public static void renderCurvedLaser(EntityTHObjectContainerRenderer renderer, Vec3 laserPos, VertexConsumer vertexConsumer, PoseStack poseStack, List<LaserNode> nodeList, float width, float coreWidth, int edge, int cull,Color laserColor, Color coreColor, float partialTicks, int combinedOverlay, float laserLength, float coreLength) {
         if(nodeList.isEmpty() || nodeList.size() < 3){
@@ -128,7 +130,6 @@ public class THCurvedLaser extends THObject {
 
         Matrix4f pose = poseStack.last().pose();
         Matrix3f normal = poseStack.last().normal();
-        //Vec3 cameraPosition = renderer.dispatcher.camera.getPosition();
         final float perAngle = Mth.DEG_TO_RAD * 360.0f/edge;
 
         //external
@@ -140,7 +141,7 @@ public class THCurvedLaser extends THObject {
 
         int index = 0;
         for(LaserNode node:nodeList){
-            if(index >= nodeList.size()-1){
+            if(index+1 >= nodeList.size()){
                 break;
             }
 
@@ -148,12 +149,11 @@ public class THCurvedLaser extends THObject {
                 LaserNode node2 = nodeList.get(index + 1);
                 Vec3 pos1 = node.getOffsetPosition(partialTicks);
                 Vec3 pos2 = node2.getOffsetPosition(partialTicks);
-                boolean flag = index >= nodeList.size() - 2;
-                LaserNode node3 = !flag ? nodeList.get(index + 2) : null;
-                Vec2 aaa1 = THObject.VectorAngleToEulerRadAngle(pos1.vectorTo(pos2));
-                Vec2 aaa2 = node3 != null ? THObject.VectorAngleToEulerRadAngle(pos2.vectorTo(node3.getOffsetPosition(partialTicks))) : aaa1;
-                Vec2 angle1 = new Vec2(aaa1.x - Mth.DEG_TO_RAD * 90.0f, aaa1.y);
-                Vec2 angle2 = new Vec2(aaa2.x - Mth.DEG_TO_RAD * 90.0f, aaa2.y);
+                LaserNode node3 = !(index >= nodeList.size() - 2) ? nodeList.get(index + 2) : null;
+                Vec2 node1Angle = THObject.VectorAngleToRadAngle(pos1.vectorTo(pos2));
+                Vec2 node2Angle = node3 != null ? THObject.VectorAngleToRadAngle(pos2.vectorTo(node3.getOffsetPosition(partialTicks))) : node1Angle;
+                Vec2 angle1 = new Vec2(node1Angle.x - Mth.DEG_TO_RAD * 90.0f, node1Angle.y);
+                Vec2 angle2 = new Vec2(node2Angle.x - Mth.DEG_TO_RAD * 90.0f, node2Angle.y);
                 pos1 = laserPos.vectorTo(pos1);
                 pos2 = laserPos.vectorTo(pos2);
 

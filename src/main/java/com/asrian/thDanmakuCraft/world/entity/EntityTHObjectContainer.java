@@ -1,10 +1,7 @@
 package com.asrian.thDanmakuCraft.world.entity;
 
 import com.asrian.thDanmakuCraft.init.EntityInit;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.ScriptManager;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectManager;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THTask;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +16,7 @@ import org.apache.commons.compress.utils.Lists;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class EntityTHObjectContainer extends Entity implements IEntityAdditionalSpawnData{
+public class EntityTHObjectContainer extends Entity implements IEntityAdditionalSpawnData, IScript {
 
     protected @Nullable Entity user;
     protected @Nullable Entity target;
@@ -267,5 +264,10 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         this.positionBinding = compoundTag.getBoolean("PositionBinding");
         this.objectManager.load(compoundTag.getCompound("object_storage"));
         this.scriptManager.load(compoundTag.getCompound("script"));
+    }
+
+    @Override
+    public ScriptManager getScriptManager() {
+        return this.scriptManager;
     }
 }

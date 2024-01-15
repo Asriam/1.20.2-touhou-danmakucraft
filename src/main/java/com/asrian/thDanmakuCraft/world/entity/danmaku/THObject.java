@@ -6,6 +6,8 @@ import com.asrian.thDanmakuCraft.client.renderer.THRenderType;
 import com.asrian.thDanmakuCraft.client.renderer.entity.EntityTHObjectContainerRenderer;
 import com.asrian.thDanmakuCraft.init.THObjectInit;
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
+import com.asrian.thDanmakuCraft.world.entity.IScript;
+import com.asrian.thDanmakuCraft.world.entity.ScriptManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -25,7 +27,7 @@ import org.joml.*;
 import java.lang.Math;
 import java.util.List;
 
-public class THObject{
+public class THObject implements IScript {
     private final THObjectType<? extends THObject> type;
     private final ScriptManager scriptManager;
     private Level level;
@@ -180,17 +182,17 @@ public class THObject{
     }
 
     public void setRotationByDirectionalVector(Vec3 vectorRotation) {
-        this.setRotation(VectorAngleToEulerRadAngle(vectorRotation));
+        this.setRotation(VectorAngleToRadAngle(vectorRotation));
     }
 
-    public static Vec2 VectorAngleToEulerRadAngle(Vec3 formDir){
+    public static Vec2 VectorAngleToRadAngle(Vec3 formDir){
         float y = (float) Mth.atan2(formDir.x,formDir.z);
         float x = (float) Mth.atan2(formDir.y,Mth.sqrt((float) (formDir.x*formDir.x+formDir.z*formDir.z)));
         return new Vec2(-x,y);
     }
 
     public static Vec2 VectorAngleToEulerDegAngle(Vec3 formDir){
-        return VectorAngleToEulerRadAngle(formDir).scale(Mth.RAD_TO_DEG);
+        return VectorAngleToRadAngle(formDir).scale(Mth.RAD_TO_DEG);
     }
 
     public void setColor(Color color){
@@ -342,7 +344,7 @@ public class THObject{
         }
 
         if(this.navi && !this.isDead){
-            this.setRotation(VectorAngleToEulerRadAngle(this.lastPosition.vectorTo(this.getPosition())));
+            this.setRotation(VectorAngleToRadAngle(this.lastPosition.vectorTo(this.getPosition())));
         }
 
         if (this.timer > this.lifetime || (this.bound && !this.getContainer().getAabb().contains(this.getPosition()))){
@@ -565,10 +567,6 @@ public class THObject{
         }
 
         poseStack.pushPose();
-        /**
-        Vec3 offsetPos = this.getOffsetPosition(partialTicks);
-        poseStack.translate(offsetPos.x(), offsetPos.y(), offsetPos.z());
-         */
         if(this.faceToCamera) {
             poseStack.mulPose(renderer.dispatcher.cameraOrientation());
             poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
@@ -639,6 +637,11 @@ public class THObject{
 
     protected static ListTag newVector3f(Vector3f vec3) {
         return newFloatList(vec3.x,vec3.y,vec3.z);
+    }
+
+    @Override
+    public ScriptManager getScriptManager() {
+        return this.scriptManager;
     }
 
     public static class Color{

@@ -1,4 +1,4 @@
-package com.asrian.thDanmakuCraft.world.entity.danmaku;
+package com.asrian.thDanmakuCraft.world.entity;
 
 import com.asrian.thDanmakuCraft.THDanmakuCraftCore;
 import net.minecraft.nbt.CompoundTag;
