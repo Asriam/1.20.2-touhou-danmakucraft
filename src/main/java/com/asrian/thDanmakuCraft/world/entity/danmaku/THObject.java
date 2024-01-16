@@ -63,7 +63,7 @@ public class THObject implements IScript {
     public boolean shouldTick = true;
     public boolean isDead = false;
     public boolean removeFlag = false;
-    protected boolean faceToCamera = true;
+    protected boolean faceCamera = true;
     protected boolean canHitUser = false;
 
     public Color color = Color(255,255,255,255);
@@ -347,7 +347,7 @@ public class THObject implements IScript {
             this.setRotation(VectorAngleToRadAngle(this.lastPosition.vectorTo(this.getPosition())));
         }
 
-        if (this.timer > this.lifetime || (this.bound && !this.getContainer().getAabb().contains(this.getPosition()))){
+        if (--this.lifetime < 0 || (this.bound && !this.getContainer().getAabb().contains(this.getPosition()))){
             this.setDead();
         }
 
@@ -567,7 +567,7 @@ public class THObject implements IScript {
         }
 
         poseStack.pushPose();
-        if(this.faceToCamera) {
+        if(this.faceCamera) {
             poseStack.mulPose(renderer.dispatcher.cameraOrientation());
             poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
         }else {

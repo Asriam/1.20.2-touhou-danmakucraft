@@ -1,9 +1,12 @@
 package com.asrian.thDanmakuCraft.world.entity;
 
 import com.asrian.thDanmakuCraft.init.EntityInit;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.*;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectManager;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THTask;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,12 +18,15 @@ import org.apache.commons.compress.utils.Lists;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.UUID;
 
 public class EntityTHObjectContainer extends Entity implements IEntityAdditionalSpawnData, IScript {
 
-    protected @Nullable Entity user;
-    protected @Nullable Entity target;
-    public boolean noCulling;
+    private @Nullable Entity user;
+    private @Nullable Entity target;
+    private @Nullable UUID userUUID;
+    private @Nullable UUID targetUUID;
+
     private final ScriptManager scriptManager;
     private final THObjectManager objectManager;
     private int timer = 0;
@@ -28,14 +34,15 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     public AABB bound = new AABB(-60.0D,-60.0D,-60.0D,60.0D,60.0D,60.0D);
     public boolean positionBinding = false;
     private int maxObjectAmount = 1000;
-    private boolean autoRemove = false;
+    private boolean autoRemove = true;
+    private int autoRemoveLife = 60;
     public final THTask task = new THTask();
 
     public EntityTHObjectContainer(EntityType<? extends EntityTHObjectContainer> type, Level level) {
         super(type, level);
-        this.scriptManager = new ScriptManager();
-        this.noCulling = false;
         this.objectManager = new THObjectManager(this);
+        this.scriptManager = new ScriptManager();
+        this.noCulling = true;
     }
 
     public EntityTHObjectContainer(@Nullable LivingEntity user, Level level, Vec3 pos) {
@@ -51,6 +58,11 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
+        /*
+        if(this.user == null && this.userUUID != null){
+            THDanmakuCraftCore.LOGGER.info("fffffffffffffffffffffffffffffffff load user " + ((ServerLevel) this.level()).getEntity(this.userUUID) + " " + this.userUUID);
+            this.setUser(((ServerLevel) this.level()).getPlayerByUUID(this.userUUID));
+        }*/
     }
 
     public int getMaxObjectAmount() {
@@ -69,6 +81,18 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         this.timer = timer;
     }
 
+    public void loadUserAndTarget(){
+        if(this.user == null && this.userUUID != null) {
+            ServerLevel serverLevel = (ServerLevel) this.level();
+            this.user = serverLevel.getEntity(this.userUUID);
+        }
+
+        if(this.target == null && this.targetUUID != null) {
+            ServerLevel serverLevel = (ServerLevel) this.level();
+            this.target = serverLevel.getEntity(this.targetUUID);
+        }
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -77,21 +101,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
             this.setPos(this.user.position());
         }
         this.setBound(this.position(),this.bound);
-
-        /*
-        if(this.objectManager.isEmpty() && true) {
-            for(int i=0;i<8;i++) {
-                THCurvedLaser laser = (THCurvedLaser) new THCurvedLaser(this, THBullet.BULLET_COLOR.COLOR_CHARTREUSE, 180, 0.5f).initPosition(this.position()).shoot(new Vec3(0.0f, 0, 0));
-                laser.setLifetime(1200);
-                laser.injectScript(
-                        "var Mth = Java.type('net.minecraft.util.Mth');" +
-                        "var Vec2 = Java.type('net.minecraft.world.phys.Vec2');" +
-                        "function onTick(object){" +
-                        "   object.setVelocity(0.2,new Vec2(0.0," + i + "*360/8+60*Mth.cos(object.getTimer()*0.3)),true,true);" +
-                        "}");
-            }
-        }*/
-
+        this.loadUserAndTarget();
         /*
         if(this.objectManager.isEmpty() && false) {
             for (int j = 0; j< THBullet.BULLET_STYLE.class.getEnumConstants().length; j++) {
@@ -152,12 +162,12 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         this.updateObjects();
         this.timer++;
 
-        /*
+
         if(this.autoRemove){
-            if(this.objectManager.isEmpty()){
+            if(this.objectManager.isEmpty() && --this.autoRemoveLife < 0){
                 this.remove(RemovalReason.DISCARDED);
             }
-        }*/
+        }
     }
 
     public void updateObjects(){
@@ -208,6 +218,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
 
     public void setUser(@Nullable Entity entity){
         this.user = entity;
+        this.userUUID = entity != null ? entity.getUUID() : null;
     }
 
     @Nullable
@@ -217,6 +228,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
 
     public void setTarget(@Nullable Entity target) {
         this.target = target;
+        this.userUUID = target != null ? target.getUUID() : null;
     }
 
     @Nullable
@@ -255,6 +267,10 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         compoundTag.putBoolean("PositionBinding",this.positionBinding);
         compoundTag.put("object_storage", this.objectManager.save());
         compoundTag.put("script",this.scriptManager.save(new CompoundTag()));
+        String user = this.user != null ? this.user.getUUID().toString() : "";
+        String target = this.target != null ? this.target.getUUID().toString() : "";
+        compoundTag.putString("UserUUID",user);
+        compoundTag.putString("TargetUUID",target);
     }
 
     @Override
@@ -264,10 +280,20 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         this.positionBinding = compoundTag.getBoolean("PositionBinding");
         this.objectManager.load(compoundTag.getCompound("object_storage"));
         this.scriptManager.load(compoundTag.getCompound("script"));
+        String userUUID = compoundTag.getString("UserUUID");
+        String targetUUID = compoundTag.getString("TargetUUID");
+        this.userUUID = !userUUID.equals("") ? UUID.fromString(userUUID) : null;
+        this.targetUUID = !targetUUID.equals("") ? UUID.fromString(targetUUID) : null;
     }
 
     @Override
     public ScriptManager getScriptManager() {
         return this.scriptManager;
     }
+
+    /*
+    @Override
+    public boolean isMultipartEntity() {
+        return true;
+    }*/
 }
