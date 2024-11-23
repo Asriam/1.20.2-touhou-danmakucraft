@@ -46,7 +46,7 @@ public class THBulletRenderer {
             Vec3 coreScale = scale.multiply(0.4f,0.4f,0.4f);
             PoseStack.Pose posestack_pose = poseStack.last();
             Vec3 camPos = renderer.dispatcher.camera.getPosition();
-            THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(bullet,camPos.x,camPos.y,camPos.z);
+            THBullet.BULLET_QUALITY_LEVEL cull = THBullet.BULLET_QUALITY_LEVEL.getLevel(bullet,camPos.x,camPos.y,camPos.z);
             int edgeA = cull.edgeANum;
             int edgeB = cull.edgeBNum;
             Vec3 offset = new Vec3(0.0f,-0.45f,0.0f);
@@ -65,16 +65,6 @@ public class THBulletRenderer {
                     Vec2.ZERO,
                     Vec2.ONE,
                     color.multiply(0.8f), 0);
-            /*
-            THObjectRenderHelper.renderSphere(vertexconsumer,posestack_pose.pose(),posestack_pose.normal(), p_254296_,1.6f,
-                    offset,
-                    scale.multiply(0.9f,0.7f,0.9f),
-                    edgeA,edgeB,true,
-                    Vec2.ZERO,
-                    Vec2.ONE,
-                    THObject.Color(0,0,0,(int) (coreColor.a*0.8f)),0);
-
-             */
         }
 
         public static void ball_mid(EntityTHObjectContainerRenderer renderer, THBullet bullet, MultiBufferSource bufferSource, PoseStack poseStack, int p_254296_,float partialTicks,THObject.Color color,THObject.Color coreColor){
@@ -83,7 +73,7 @@ public class THBulletRenderer {
             Vec3 coreScale = scale.multiply(0.6f,0.6f,0.6f);
             PoseStack.Pose posestack_pose = poseStack.last();
             Vec3 camPos = renderer.dispatcher.camera.getPosition();
-            THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(bullet,camPos.x,camPos.y,camPos.z);
+            THBullet.BULLET_QUALITY_LEVEL cull = THBullet.BULLET_QUALITY_LEVEL.getLevel(bullet,camPos.x,camPos.y,camPos.z);
             int edgeA = cull.edgeANum;
             int edgeB = cull.edgeBNum;
             VertexConsumer vertexconsumer = bufferSource.getBuffer(THRenderType.LIGHTNING);
@@ -109,7 +99,7 @@ public class THBulletRenderer {
             Vec3 coreScale = scale.multiply(0.8f,0.8f,0.8f);
             PoseStack.Pose posestack_pose = poseStack.last();
             Vec3 camPos = renderer.dispatcher.camera.getPosition();
-            THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(bullet,camPos.x,camPos.y,camPos.z);
+            THBullet.BULLET_QUALITY_LEVEL cull = THBullet.BULLET_QUALITY_LEVEL.getLevel(bullet,camPos.x,camPos.y,camPos.z);
             int edgeA = cull.edgeANum;
             int edgeB = cull.edgeBNum;
             VertexConsumer vertexconsumer = bufferSource.getBuffer(THRenderType.LIGHTNING);
@@ -135,7 +125,7 @@ public class THBulletRenderer {
             Vec3 coreScale = scale.multiply(0.7f,0.7f,0.7f);
             PoseStack.Pose posestack_pose = poseStack.last();
             Vec3 camPos = renderer.dispatcher.camera.getPosition();
-            THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(bullet,camPos.x,camPos.y,camPos.z);
+            THBullet.BULLET_QUALITY_LEVEL cull = THBullet.BULLET_QUALITY_LEVEL.getLevel(bullet,camPos.x,camPos.y,camPos.z);
             int edgeA = cull.edgeANum;
             int edgeB = cull.edgeBNum;
             VertexConsumer vertexconsumer = bufferSource.getBuffer(THRenderType.LIGHTNING);
@@ -161,7 +151,7 @@ public class THBulletRenderer {
             Vec3 coreScale = scale.multiply(0.6f,0.6f,0.6f);
             PoseStack.Pose posestack_pose = poseStack.last();
             Vec3 camPos = renderer.dispatcher.camera.getPosition();
-            THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(bullet,camPos.x,camPos.y,camPos.z);
+            THBullet.BULLET_QUALITY_LEVEL cull = THBullet.BULLET_QUALITY_LEVEL.getLevel(bullet,camPos.x,camPos.y,camPos.z);
             int edgeA = cull.edgeANum;
             int edgeB = cull.edgeBNum;
             Vec3 offset = new Vec3(0.0f,-0.1f,0.0f);
@@ -188,7 +178,7 @@ public class THBulletRenderer {
             Vec3 coreScale = scale.multiply(0.7f,0.7f,0.7f);
             PoseStack.Pose posestack_pose = poseStack.last();
             Vec3 camPos = renderer.dispatcher.camera.getPosition();
-            THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(bullet,camPos.x,camPos.y,camPos.z);
+            THBullet.BULLET_QUALITY_LEVEL cull = THBullet.BULLET_QUALITY_LEVEL.getLevel(bullet,camPos.x,camPos.y,camPos.z);
             int edgeA = 4;
             int edgeB = 4;
             VertexConsumer vertexconsumer = bufferSource.getBuffer(THRenderType.LIGHTNING);

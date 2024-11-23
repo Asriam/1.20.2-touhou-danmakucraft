@@ -13,14 +13,12 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -46,6 +44,8 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
         double camX = cameraPosition.x;
         double camY = cameraPosition.y;
         double camZ = cameraPosition.z;
+
+        entity.layerObjects(camX,camY,camZ);
 
         for(THObject object:entity.getObjectManager().getTHObjects()){
             if (object != null && (object instanceof THCurvedLaser || this.shouldRenderTHObject(object, this.frustum, camX, camY, camZ))) {
@@ -73,8 +73,7 @@ public class EntityTHObjectContainerRenderer extends EntityRenderer<EntityTHObje
         AABB aabb = object.getBoundingBox().move(-object.getX(), -object.getY(), -object.getZ());
         LevelRenderer.renderLineBox(poseStack, vertexConsumer, aabb, 0.0F, 1.0F, 1.0F, 1.0F);
 
-        Vector3f rotation = object.getRotation();
-        Vec3 vec31 = Vec3.directionFromRotation(rotation.x()*Mth.RAD_TO_DEG,rotation.y()*Mth.RAD_TO_DEG);
+        Vec3 vec31 = object.getMotionDirection();
         Matrix4f matrix4f = poseStack.last().pose();
         Matrix3f matrix3f = poseStack.last().normal();
         vertexConsumer.vertex(matrix4f, 0.0F, 0.0F, 0.0F).color(0, 0, 255, 255).normal(matrix3f, (float)vec31.x, (float)vec31.y, (float)vec31.z).endVertex();

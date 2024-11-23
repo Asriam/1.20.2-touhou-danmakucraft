@@ -1,6 +1,0 @@
-
-function onScriptTick(world,container){
-
-}
-
-

@@ -1,24 +1,24 @@
 package com.asrian.thDanmakuCraft.world.entity.danmaku;
 
-import com.asrian.thDanmakuCraft.THDanmakuCraftCore;
 import com.asrian.thDanmakuCraft.registries.THDanmakuCraftRegistries;
+import com.asrian.thDanmakuCraft.util.MultiMap;
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ClassInstanceMultiMap;
 import org.apache.commons.compress.utils.Lists;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class THObjectManager{
 
-    private final ClassInstanceMultiMap<THObject> storage;
+    private final MultiMap<THObject> storage;
     private final EntityTHObjectContainer container;
 
     public THObjectManager(EntityTHObjectContainer container) {
         this.container = container;
-        this.storage = new ClassInstanceMultiMap<>(THObject.class);
+        this.storage = new MultiMap<>(THObject.class);
     }
 
     public void clearStorage(){
@@ -27,7 +27,7 @@ public class THObjectManager{
 
     public void addTHObject(THObject object){
         if(this.storage.size() >= this.container.getMaxObjectAmount()){
-            THDanmakuCraftCore.LOGGER.warn("{}'s object pool is full! (Max is {})",this.container,this.container.getMaxObjectAmount());
+            //THDanmakuCraftCore.LOGGER.warn("{}'s object pool is full! {} (Max is {})",this.container,this.storage.size(),this.container.getMaxObjectAmount());
             return;
         }
         this.storage.add(object);
@@ -39,6 +39,10 @@ public class THObjectManager{
 
     public void removeTHObject(THObject object){
         this.storage.remove(object);
+    }
+
+    public void sortTHObjects(Comparator<THObject> comparator){
+        this.storage.sort(comparator);
     }
 
     public void removeTHObject(int index){

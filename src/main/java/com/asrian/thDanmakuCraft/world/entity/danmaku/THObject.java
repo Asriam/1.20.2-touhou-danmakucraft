@@ -27,12 +27,13 @@ import org.joml.*;
 import java.lang.Math;
 import java.util.List;
 
-public class THObject implements IScript {
+public class THObject implements IScript, IScriptTHObjectAPI{
     private final THObjectType<? extends THObject> type;
     private final ScriptManager scriptManager;
     private Level level;
     private EntityTHObjectContainer container;
-    protected static final ResourceLocation TEXTURE_WHITE = new ResourceLocation(THDanmakuCraftCore.MODID, "textures/white.png");
+    public static final ResourceLocation TEXTURE_WHITE = new ResourceLocation(THDanmakuCraftCore.MODID, "textures/white.png");
+    public ResourceLocation SCRIPT = new ResourceLocation(THDanmakuCraftCore.MODID,"js/test.js");
     protected ResourceLocation TEXTURE = TEXTURE_WHITE;
     protected static final AABB INITIAL_AABB = new AABB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
     protected AABB bb = INITIAL_AABB;
@@ -65,6 +66,8 @@ public class THObject implements IScript {
     public boolean removeFlag = false;
     protected boolean faceCamera = true;
     protected boolean canHitUser = false;
+
+    public int layer = 0;
 
     public Color color = Color(255,255,255,255);
     public THRenderType.BLEND _blend = THRenderType.BLEND.LIGHTEN;
@@ -250,6 +253,10 @@ public class THObject implements IScript {
         return this.velocity;
     }
 
+    public Vec3 getMotionDirection(){
+        return this.lastPosition.vectorTo(this.getPosition()).normalize();
+    }
+
     public Vector3f getRotation(){
         return new Vector3f(this.xRot,this.yRot,this.zRot);
     }
@@ -310,6 +317,7 @@ public class THObject implements IScript {
         if(!container.getObjectManager().contains(this)){
             container.getObjectManager().addTHObject(this);
         }
+
         this.setContainer(container);
     }
 
@@ -344,7 +352,7 @@ public class THObject implements IScript {
         }
 
         if(this.navi && !this.isDead){
-            this.setRotation(VectorAngleToRadAngle(this.lastPosition.vectorTo(this.getPosition())));
+            this.setRotation(VectorAngleToRadAngle(this.getMotionDirection()));
         }
 
         if (--this.lifetime < 0 || (this.bound && !this.getContainer().getAabb().contains(this.getPosition()))){
@@ -358,7 +366,7 @@ public class THObject implements IScript {
         this.timer += 1;
 
         try {
-            this.scriptManager.invokeScript("onTick",this);
+            //this.scriptManager.invokeScript("onTick",this);
         } catch (Exception e) {
             e.printStackTrace();
             this.remove();
@@ -637,6 +645,10 @@ public class THObject implements IScript {
 
     protected static ListTag newVector3f(Vector3f vec3) {
         return newFloatList(vec3.x,vec3.y,vec3.z);
+    }
+
+    public static boolean IsValid(THObject object){
+        return object != null;
     }
 
     @Override

@@ -30,6 +30,7 @@ public class THBullet extends THObject {
     public THBullet(EntityTHObjectContainer container, BULLET_STYLE style, BULLET_COLOR bulletColor) {
         this(THObjectInit.TH_BULLET.get(), container);
         this.style = style;
+        this.size = style.size;
         this.bulletColor = bulletColor;
     }
 
@@ -222,38 +223,44 @@ public class THBullet extends THObject {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public enum BULLET_FACES_CULL{
-        VERY_CLOSE(10,10),
-        CLOSE(8,8),
-        MEDIUM(6,6),
-        FAR(6,5),
-        VERY_FAR(4,4);
+    public enum BULLET_QUALITY_LEVEL {
+        VERY_CLOSE(10,10,false),
+        CLOSE(8,8,false),
+        MEDIUM(6,6,false),
+        FAR(6,5,false),
+        VERY_FAR(4,4,true);
 
         public final int edgeANum;
         public final int edgeBNum;
-        BULLET_FACES_CULL(int edgeA, int edgeB){
+        public boolean is2D;
+
+        BULLET_QUALITY_LEVEL(int edgeA, int edgeB, boolean is2D){
             this.edgeANum = edgeA;
             this.edgeBNum = edgeB;
+            this.is2D = is2D;
         }
 
-        public static BULLET_FACES_CULL getCullType(THObject object, double camX, double camY, double camZ){
+        public static BULLET_QUALITY_LEVEL getLevel(THObject object, double camX, double camY, double camZ){
             double d0 = object.positionX - camX;
             double d1 = object.positionY - camY;
             double d2 = object.positionZ - camZ;
-            double dist = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+            double distSquare = (d0 * d0 + d1 * d1 + d2 * d2);
 
             double d4 = object.getBoundingBox().getSize() * 4.0D;
             if (Double.isNaN(d4)) {
                 d4 = 4.0D;
             }
+            d4 *= d4;
 
-            if(dist < d4*8.0D){
+            double[] distOfLevel = {4.0d,8.0D,16.0D,32.0D,48.0D};
+
+            if(distSquare < d4*distOfLevel[0]*distOfLevel[0]){
                 return VERY_CLOSE;
-            }else if(dist < d4*16.0D){
+            }else if(distSquare < d4*distOfLevel[1]*distOfLevel[1]){
                 return CLOSE;
-            }else if(dist < d4*32.0D){
+            }else if(distSquare < d4*distOfLevel[2]*distOfLevel[2]){
                 return MEDIUM;
-            }else if(dist < d4*48.0D){
+            }else if(distSquare < d4*distOfLevel[3]*distOfLevel[3]){
                 return FAR;
             }
             return VERY_FAR;

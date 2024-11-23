@@ -48,7 +48,7 @@ public class THRenderType extends RenderStateShard{
     public static final Function<ResourceLocation, RenderType> BLEND_NONE = Util.memoize((texture) -> {
         RenderType.CompositeState compositestate = RenderType.CompositeState.builder()
                 .setShaderState(RenderStateShard.POSITION_COLOR_TEX_SHADER)
-                .setTextureState(new TextureStateShard(texture, false, false))
+                .setTextureState(new TextureStateShard(texture, true, true))
                 .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                 .setCullState(CULL)
                 .setLightmapState(NO_LIGHTMAP)
@@ -61,7 +61,7 @@ public class THRenderType extends RenderStateShard{
     public static final Function<ResourceLocation, RenderType> BLEND_LIGHTEN = Util.memoize((texture) -> {
         RenderType.CompositeState compositestate = RenderType.CompositeState.builder()
                 .setShaderState(RenderStateShard.POSITION_COLOR_TEX_SHADER)
-                .setTextureState(new TextureStateShard(texture, false, false))
+                .setTextureState(new TextureStateShard(texture, true, true))
                 .setTransparencyState(LIGHTNING_TRANSPARENCY)
                 .setCullState(CULL)
                 .setLightmapState(NO_LIGHTMAP)
@@ -74,7 +74,7 @@ public class THRenderType extends RenderStateShard{
     public static final Function<ResourceLocation, RenderType> BLEND_MULTIPLY = Util.memoize((texture) -> {
         RenderType.CompositeState compositestate = RenderType.CompositeState.builder()
                 .setShaderState(RenderStateShard.POSITION_COLOR_TEX_SHADER)
-                .setTextureState(new TextureStateShard(texture, false, false))
+                .setTextureState(new TextureStateShard(texture, true, true))
                 .setTransparencyState(new RenderStateShard.TransparencyStateShard("multiplying_transparency", () -> {
                     RenderSystem.enableBlend();
                     RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.DST_COLOR, GlStateManager.DestFactor.DST_COLOR, GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.DST_ALPHA);
@@ -100,7 +100,7 @@ public class THRenderType extends RenderStateShard{
                     .createCompositeState(false)
     );
 
-    public static final RenderType LIGHTNING_NO_CULL = RenderType.create("lightning", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, true,
+    public static final RenderType LIGHTNING_NO_CULL = RenderType.create("lightning_no_cull", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 256, false, true,
             RenderType.CompositeState.builder()
                     .setShaderState(RENDERTYPE_LIGHTNING_SHADER)
                     .setTransparencyState(LIGHTNING_TRANSPARENCY)

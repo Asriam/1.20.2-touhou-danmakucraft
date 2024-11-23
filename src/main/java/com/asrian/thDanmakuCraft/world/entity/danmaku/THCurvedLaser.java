@@ -103,10 +103,6 @@ public class THCurvedLaser extends THObject {
         }
 
         poseStack.pushPose();
-        /*
-        Vec3 camPos = renderer.dispatcher.camera.getPosition();
-        THBullet.BULLET_FACES_CULL cull = THBullet.BULLET_FACES_CULL.getCullType(this,camPos.x,camPos.y,camPos.z);
-         */
         int edge = 4;
         Color indexColor = this.laserColor.getColor();
         Color color = Color(

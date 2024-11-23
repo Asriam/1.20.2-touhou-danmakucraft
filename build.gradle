@@ -117,15 +117,20 @@ repositories {
 
     // If you have mod jar dependencies in ./libs, you can declare them as a repository like so.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html#sub:flat_dir_resolver
-    // flatDir {
-    //     dir 'libs'
-    // }
+
+    /*
+    flatDir {
+        dir 'libs'
+    }*/
 }
 
 /*
-dependencies {
-    // https://mvnrepository.com/artifact/org.openjdk.nashorn/nashorn-core
-    implementation 'org.openjdk.nashorn:nashorn-core:15.4'
+dependencies{
+    // LUA
+    // https://mvnrepository.com/artifact/party.iroiro.luajava/lua54
+    implementation group: 'party.iroiro.luajava', name: 'luajava', version: '3.5.0'
+    implementation group: 'party.iroiro.luajava', name: 'lua54', version: '3.5.0'
+    runtimeOnly 'party.iroiro.luajava:lua54-platform:3.5.0:natives-desktop'
 }*/
 
 dependencies {
@@ -150,6 +155,16 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+    // Lua dependencies
+    /*
+    implementation group: 'party.iroiro.luajava', name: 'luajava', version: '3.5.0'
+    implementation group: 'party.iroiro.luajava', name: 'lua54', version: '3.5.0'
+    runtimeOnly 'party.iroiro.luajava:lua54-platform:3.5.0:natives-desktop'
+     */
+
+    // https://mvnrepository.com/artifact/org.luaj/luaj-jse
+    implementation 'org.luaj:luaj-jse:3.0.1'
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

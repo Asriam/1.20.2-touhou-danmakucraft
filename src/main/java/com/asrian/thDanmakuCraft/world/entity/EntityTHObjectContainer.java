@@ -1,22 +1,29 @@
 package com.asrian.thDanmakuCraft.world.entity;
 
+import com.asrian.thDanmakuCraft.client.renderer.THRenderType;
 import com.asrian.thDanmakuCraft.init.EntityInit;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THBullet;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectManager;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THTask;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import org.apache.commons.compress.utils.Lists;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,8 +41,8 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     public AABB bound = new AABB(-60.0D,-60.0D,-60.0D,60.0D,60.0D,60.0D);
     public boolean positionBinding = false;
     private int maxObjectAmount = 1000;
-    private boolean autoRemove = true;
-    private int autoRemoveLife = 60;
+    public boolean autoRemove = true;
+    public int autoRemoveLife = 60;
     public final THTask task = new THTask();
 
     public EntityTHObjectContainer(EntityType<? extends EntityTHObjectContainer> type, Level level) {
@@ -58,11 +65,6 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     @Override
     public void onAddedToWorld() {
         super.onAddedToWorld();
-        /*
-        if(this.user == null && this.userUUID != null){
-            THDanmakuCraftCore.LOGGER.info("fffffffffffffffffffffffffffffffff load user " + ((ServerLevel) this.level()).getEntity(this.userUUID) + " " + this.userUUID);
-            this.setUser(((ServerLevel) this.level()).getPlayerByUUID(this.userUUID));
-        }*/
     }
 
     public int getMaxObjectAmount() {
@@ -102,11 +104,11 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
         }
         this.setBound(this.position(),this.bound);
         this.loadUserAndTarget();
-        /*
+
         if(this.objectManager.isEmpty() && false) {
             for (int j = 0; j< THBullet.BULLET_STYLE.class.getEnumConstants().length; j++) {
                 for (int i = 0; i < 16; i++) {
-                    THBullet a = (THBullet) new THBullet(this,THBullet.BULLET_STYLE.getStyleByIndex(j),THBullet.BULLET_COLOR.getColorByIndex(i + 1))
+                    THObject a = (THObject) new THBullet(this,THBullet.BULLET_STYLE.getStyleByIndex(j),THBullet.BULLET_COLOR.getColorByIndex(i + 1))
                     .initPosition(this.position().add(i, 0.0d, j*2))
                     .shoot(
                             0.0f,
@@ -126,7 +128,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
 
             Vec3 angle = rotation.xRot(Mth.DEG_TO_RAD*90.0f).normalize().xRot(rotate.x).yRot(rotate.y);
             THBullet.BULLET_STYLE style = THBullet.BULLET_STYLE.grain_a;
-            THBullet danmaku = (THBullet) new THBullet(this,style,THBullet.BULLET_COLOR.COLOR_PURPLE).initPosition(pos).shoot(
+            THObject danmaku = (THObject) new THBullet(this,style, THBullet.BULLET_COLOR.COLOR_PURPLE).initPosition(pos).shoot(
                     0.2f,
                     angle
             );
@@ -139,7 +141,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
                 Vec3 angle2 = rotation.xRot(Mth.DEG_TO_RAD*90.0f-Mth.DEG_TO_RAD*60.0f*i).yRot(Mth.DEG_TO_RAD*(180.0f/way)*i);
                 for(int j=0;j<way;j++) {
                     Vec3 angle3 = angle2.yRot(-Mth.DEG_TO_RAD * (360.0f/way)*j).normalize().xRot(rotate.x).yRot(rotate.y);
-                    THBullet danmaku2 = (THBullet) new THBullet(this,style,
+                    THObject danmaku2 = (THObject) new THBullet(this,style,
                             THBullet.BULLET_COLOR.COLOR_PURPLE).initPosition(pos).shoot(
                             0.2f,
                             angle3
@@ -150,14 +152,14 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
             }
 
             Vec3 angle3 = rotation.xRot(Mth.DEG_TO_RAD*90.0f- Mth.DEG_TO_RAD * 180.0f).normalize().xRot(rotate.x).yRot(rotate.y);
-            THBullet danmaku3 = (THBullet) new THBullet(this,style,
+            THObject danmaku3 = (THObject) new THBullet(this,style,
                     THBullet.BULLET_COLOR.COLOR_PURPLE).initPosition(pos).shoot(
                     0.2f,
                     angle3
             );
             danmaku3.setAcceleration(0.02f, angle3);
             danmaku3.setLifetime(120);
-        }*/
+        }
 
         this.updateObjects();
         this.timer++;
@@ -168,6 +170,33 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
                 this.remove(RemovalReason.DISCARDED);
             }
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void layerObjects(double camX, double camY, double camZ){
+        this.objectManager.sortTHObjects(new Comparator<THObject>() {
+            @Override
+            public int compare(THObject o1, THObject o2) {
+                if (o1 == null || o2 == null){
+                    return 0;
+                }
+                Vec3 pos1 = o1.getPosition();
+                Vec3 pos2 = o2.getPosition();
+                double d1x = pos1.x - camX;
+                double d1y = pos1.y - camY;
+                double d1z = pos1.z - camZ;
+                double dist1Square = (d1x * d1x + d1y * d1y + d1z * d1z);
+                double d2x = pos2.x - camX;
+                double d2y = pos2.y - camY;
+                double d2z = pos2.z - camZ;
+                double dist2Square = (d2x * d2x + d2y * d2y + d2z * d2z);
+                if (dist1Square < dist2Square){
+                    return 1;
+                }else {
+                    return -1;
+                }
+            }
+        });
     }
 
     public void updateObjects(){
@@ -183,6 +212,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
                 removeList.add(object);
             }
         }
+
         for(THObject object:removeList){
             object.onRemove();
             this.objectManager.removeTHObject(object);
@@ -290,10 +320,4 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     public ScriptManager getScriptManager() {
         return this.scriptManager;
     }
-
-    /*
-    @Override
-    public boolean isMultipartEntity() {
-        return true;
-    }*/
 }
