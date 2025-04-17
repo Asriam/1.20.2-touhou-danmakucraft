@@ -1,4 +1,4 @@
-package com.asrian.thDanmakuCraft.world.entity;
+package com.asrian.thDanmakuCraft.util.script;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -7,7 +7,7 @@ public abstract class AbstractScriptManager {
     protected String script = "";
     protected boolean shouldExecuteScript;
 
-    public abstract Object invokeScript(String functionName, Object... args) throws Exception ;
+    public abstract Object invokeScript(String functionName, Object... args) throws Exception;
 
     public boolean hasScript(){
         return this.script != null && !this.script.equals("");

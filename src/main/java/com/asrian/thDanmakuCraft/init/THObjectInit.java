@@ -5,8 +5,8 @@ import com.asrian.thDanmakuCraft.registries.THDanmakuCraftRegistries;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THBullet;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectType;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THCurvedLaser;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THLaser;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.laser.THCurvedLaser;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.laser.THLaser;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 

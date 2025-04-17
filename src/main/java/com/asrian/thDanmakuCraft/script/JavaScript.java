@@ -1,7 +1,7 @@
 package com.asrian.thDanmakuCraft.script;
 
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THBullet;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THCurvedLaser;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.laser.THCurvedLaser;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;

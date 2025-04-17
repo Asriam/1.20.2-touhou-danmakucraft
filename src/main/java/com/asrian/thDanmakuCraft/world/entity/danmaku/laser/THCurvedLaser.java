@@ -1,10 +1,13 @@
-package com.asrian.thDanmakuCraft.world.entity.danmaku;
+package com.asrian.thDanmakuCraft.world.entity.danmaku.laser;
 
 import com.asrian.thDanmakuCraft.client.renderer.THObjectRenderHelper;
 import com.asrian.thDanmakuCraft.client.renderer.THRenderType;
 import com.asrian.thDanmakuCraft.client.renderer.entity.EntityTHObjectContainerRenderer;
 import com.asrian.thDanmakuCraft.init.THObjectInit;
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THBullet;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -118,7 +121,6 @@ public class THCurvedLaser extends THObject {
     }
 
     //曲線聚光渲染的一坨屎山
-    @OnlyIn(value = Dist.CLIENT)
     public static void renderCurvedLaser(EntityTHObjectContainerRenderer renderer, Vec3 laserPos, VertexConsumer vertexConsumer, PoseStack poseStack, List<LaserNode> nodeList, float width, float coreWidth, int edge, int cull,Color laserColor, Color coreColor, float partialTicks, int combinedOverlay, float laserLength, float coreLength) {
         if(nodeList.isEmpty() || nodeList.size() < 3){
             return;
@@ -148,8 +150,10 @@ public class THCurvedLaser extends THObject {
                 LaserNode node3 = !(index >= nodeList.size() - 2) ? nodeList.get(index + 2) : null;
                 Vec2 node1Angle = THObject.VectorAngleToRadAngle(pos1.vectorTo(pos2));
                 Vec2 node2Angle = node3 != null ? THObject.VectorAngleToRadAngle(pos2.vectorTo(node3.getOffsetPosition(partialTicks))) : node1Angle;
+
                 Vec2 angle1 = new Vec2(node1Angle.x - Mth.DEG_TO_RAD * 90.0f, node1Angle.y);
                 Vec2 angle2 = new Vec2(node2Angle.x - Mth.DEG_TO_RAD * 90.0f, node2Angle.y);
+
                 pos1 = laserPos.vectorTo(pos1);
                 pos2 = laserPos.vectorTo(pos2);
 
@@ -180,6 +184,7 @@ public class THCurvedLaser extends THObject {
 
                         lastNodePos_1[i] = calculatedPos2_1;
                         lastNodePos_2[i] = calculatedPos2_2;
+
                         //core render
                         float nodeWidth3 = circle((float) (index) / (nodeList.size() - 1), coreLength);
                         float nodeWidth4 = circle((float) (index + 1) / (nodeList.size() - 1), coreLength);

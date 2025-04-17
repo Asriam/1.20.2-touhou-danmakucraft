@@ -2,6 +2,7 @@ package com.asrian.thDanmakuCraft;
 
 import com.asrian.thDanmakuCraft.init.*;
 import com.asrian.thDanmakuCraft.script.JavaScript;
+import com.asrian.thDanmakuCraft.util.JSLoader;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -23,6 +24,7 @@ public class THDanmakuCraftCore
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final JavaScript JAVASCRIPT = new JavaScript();
+    public static JSLoader JSLOADER;
 
     public static final ScriptEngine getEngine() {
         return JAVASCRIPT.getEngine();
@@ -40,7 +42,7 @@ public class THDanmakuCraftCore
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-
+        JSLOADER = new JSLoader();
     }
 
     @SubscribeEvent

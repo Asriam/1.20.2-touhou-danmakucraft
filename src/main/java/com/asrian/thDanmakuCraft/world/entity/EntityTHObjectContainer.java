@@ -2,6 +2,8 @@ package com.asrian.thDanmakuCraft.world.entity;
 
 import com.asrian.thDanmakuCraft.client.renderer.THRenderType;
 import com.asrian.thDanmakuCraft.init.EntityInit;
+import com.asrian.thDanmakuCraft.util.script.IScript;
+import com.asrian.thDanmakuCraft.util.script.JavaScriptManager;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THBullet;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectManager;
@@ -34,7 +36,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     private @Nullable UUID userUUID;
     private @Nullable UUID targetUUID;
 
-    private final ScriptManager scriptManager;
+    private final JavaScriptManager scriptManager;
     private final THObjectManager objectManager;
     private int timer = 0;
     public AABB aabb = new AABB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
@@ -48,7 +50,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     public EntityTHObjectContainer(EntityType<? extends EntityTHObjectContainer> type, Level level) {
         super(type, level);
         this.objectManager = new THObjectManager(this);
-        this.scriptManager = new ScriptManager();
+        this.scriptManager = new JavaScriptManager();
         this.noCulling = true;
     }
 
@@ -121,7 +123,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
             }
         }
 
-        if((this.timer+2)%1==0) {
+        if((this.timer+2)%1==0 && false) {
             Vec3 pos = this.position();
             Vec3 rotation = Vec3.directionFromRotation(0.0f,0.0f);
             Vec2 rotate = new Vec2(Mth.DEG_TO_RAD*((float) Math.pow(this.timer*0.1f,2)+360.0f/5),-Mth.DEG_TO_RAD*((float) Math.pow(this.timer*0.1f,2)+360.0f/5));
@@ -317,7 +319,7 @@ public class EntityTHObjectContainer extends Entity implements IEntityAdditional
     }
 
     @Override
-    public ScriptManager getScriptManager() {
+    public JavaScriptManager getScriptManager() {
         return this.scriptManager;
     }
 }

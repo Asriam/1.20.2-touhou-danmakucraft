@@ -1,7 +1,9 @@
-package com.asrian.thDanmakuCraft.world.entity.danmaku;
+package com.asrian.thDanmakuCraft.world.entity.danmaku.laser;
 
 import com.asrian.thDanmakuCraft.init.THObjectInit;
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.THObjectType;
 
 public class THLaser extends THObject {
 

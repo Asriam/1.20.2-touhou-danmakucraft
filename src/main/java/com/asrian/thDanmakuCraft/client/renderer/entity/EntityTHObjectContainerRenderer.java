@@ -1,7 +1,7 @@
 package com.asrian.thDanmakuCraft.client.renderer.entity;
 
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
-import com.asrian.thDanmakuCraft.world.entity.danmaku.THCurvedLaser;
+import com.asrian.thDanmakuCraft.world.entity.danmaku.laser.THCurvedLaser;
 import com.asrian.thDanmakuCraft.world.entity.danmaku.THObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

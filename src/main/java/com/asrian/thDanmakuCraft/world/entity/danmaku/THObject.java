@@ -6,8 +6,8 @@ import com.asrian.thDanmakuCraft.client.renderer.THRenderType;
 import com.asrian.thDanmakuCraft.client.renderer.entity.EntityTHObjectContainerRenderer;
 import com.asrian.thDanmakuCraft.init.THObjectInit;
 import com.asrian.thDanmakuCraft.world.entity.EntityTHObjectContainer;
-import com.asrian.thDanmakuCraft.world.entity.IScript;
-import com.asrian.thDanmakuCraft.world.entity.ScriptManager;
+import com.asrian.thDanmakuCraft.util.script.IScript;
+import com.asrian.thDanmakuCraft.util.script.JavaScriptManager;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -29,11 +29,10 @@ import java.util.List;
 
 public class THObject implements IScript, IScriptTHObjectAPI{
     private final THObjectType<? extends THObject> type;
-    private final ScriptManager scriptManager;
+    private final JavaScriptManager scriptManager;
     private Level level;
     private EntityTHObjectContainer container;
     public static final ResourceLocation TEXTURE_WHITE = new ResourceLocation(THDanmakuCraftCore.MODID, "textures/white.png");
-    public ResourceLocation SCRIPT = new ResourceLocation(THDanmakuCraftCore.MODID,"js/test.js");
     protected ResourceLocation TEXTURE = TEXTURE_WHITE;
     protected static final AABB INITIAL_AABB = new AABB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
     protected AABB bb = INITIAL_AABB;
@@ -77,7 +76,7 @@ public class THObject implements IScript, IScriptTHObjectAPI{
         this.type = type;
         this.container = container;
         this.level = container.level();
-        this.scriptManager = new ScriptManager();
+        this.scriptManager = new JavaScriptManager();
         this.initPosition(container.position());
     }
 
@@ -365,12 +364,7 @@ public class THObject implements IScript, IScriptTHObjectAPI{
 
         this.timer += 1;
 
-        try {
-            //this.scriptManager.invokeScript("onTick",this);
-        } catch (Exception e) {
-            e.printStackTrace();
-            this.remove();
-        }
+        this.scriptManager.invokeScript("onTick", this::remove, this);
     }
 
     public void collision(){
@@ -568,6 +562,14 @@ public class THObject implements IScript, IScriptTHObjectAPI{
         return sqrDist < d0 * d0;
     }
 
+    public class renderer{
+        private final THObject object;
+
+        public renderer(THObject object) {
+            this.object = object;
+        }
+    }
+
     @OnlyIn(value = Dist.CLIENT)
     public void onRender(EntityTHObjectContainerRenderer renderer, Vec3 objectPos,float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int combinedOverlay) {
         if(this.color.a <= 0){
@@ -652,7 +654,7 @@ public class THObject implements IScript, IScriptTHObjectAPI{
     }
 
     @Override
-    public ScriptManager getScriptManager() {
+    public JavaScriptManager getScriptManager() {
         return this.scriptManager;
     }
 
